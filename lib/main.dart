@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/screens/kodisha_homepage.dart';
+import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(ProviderScope(child: const MyApp()));
 }
 
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kodisha',
       theme: kodishaTheme,
-      home: const KodishaHomepage(),
+      home: const Login(),
     );
   }
 }

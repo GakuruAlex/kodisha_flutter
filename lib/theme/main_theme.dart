@@ -25,9 +25,19 @@ final kodishaTheme = ThemeData(
   ),
   textTheme: GoogleFonts.acmeTextTheme(
     TextTheme(
+      titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 24),
       labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 48),
       bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
       bodySmall: TextStyle(color: Color(0xFFFFC745), fontSize: 24),
+    ),
+  ),
+  inputDecorationTheme: InputDecorationThemeData(
+    contentPadding: EdgeInsets.all(18),
+    labelStyle: TextStyle(color: Color(0xFFFFFFFF)),
+    floatingLabelStyle: TextStyle(color: Color(0xFFFFFFFF)),
+    border: OutlineInputBorder(
+      borderSide: BorderSide(style: BorderStyle.solid),
+      borderRadius: BorderRadius.all(Radius.circular(12)),
     ),
   ),
 );
