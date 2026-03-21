@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kodisha_flutter/theme/main_theme.dart';
 
 class KodishaHomepage extends StatelessWidget {
   const KodishaHomepage({super.key});
@@ -7,18 +8,12 @@ class KodishaHomepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Kodisha")),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.secondary,
-            ],
-            begin: AlignmentGeometry.topLeft,
-            end: AlignmentGeometry.bottomRight,
-          ),
-        ),
-        child: Center(
+      body: Center(
+        child: Container(
+          height: MediaQuery.sizeOf(context).height * .9,
+          width: MediaQuery.sizeOf(context).width,
+
+          decoration: pagesDecoration,
           child: Text(
             "Hello Kodisha",
             style: Theme.of(context).textTheme.bodySmall,

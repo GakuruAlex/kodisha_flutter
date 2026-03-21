@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
+import 'package:kodisha_flutter/screens/kodisha_homepage.dart';
 import 'package:kodisha_flutter/widgets/form_field.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
@@ -26,6 +27,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   Widget build(BuildContext context) {
     final loginSuccess = ref.watch(loginNotifier);
     final loginProvider = ref.read(loginNotifier.notifier);
+    ref.listen(loginNotifier, (previous, next) {
+      next.whenOrNull(
+        data: (data) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => KodishaHomepage()),
+          );
+        },
+      );
+    });
     return Form(
       key: _formKey,
       child: Column(
@@ -59,7 +69,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             ),
 
             onPressed: () {
-              print("Login button pressed");
               if (_formKey.currentState!.validate()) {
                 loginProvider.loginUser(
                   _emailController.text,
@@ -82,7 +91,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           ),
           SizedBox(
             child: loginSuccess.when(
-              data: (data) => Card(child: Text(data)),
+              data: (data) => const SizedBox.shrink(),
               error: (error, statck) => Text("$error"),
               loading: () => CircularProgressIndicator(),
             ),

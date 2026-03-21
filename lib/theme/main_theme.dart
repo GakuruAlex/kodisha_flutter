@@ -1,35 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final kodishaTheme = ThemeData(
-  colorScheme: ColorScheme(
-    brightness: Brightness.dark,
+final colorsScheme = ColorScheme(
+  brightness: Brightness.dark,
 
-    primary: Color(0xFF003332),
-    onPrimary: Color(0xFFFFC745),
+  primary: Color(0xFF003332),
+  onPrimary: Color(0xFFFFC745),
 
-    secondary: Color(0xFF76C6F5),
-    onSecondary: Color(0xFF181003),
+  secondary: Color(0xFF76C6F5),
+  onSecondary: Color(0xFF181003),
 
-    error: Color(0xFFDD0404),
-    onError: Color(0xFFFFFFFF),
+  error: Color(0xFFDD0404),
+  onError: Color(0xFFFFFFFF),
 
-    surface: Color(0xFF181003),
-    onSurface: Color(0xFFFFFFFF),
+  surface: Color(0xFF181003),
+  onSurface: Color(0xFFFFFFFF),
 
-    tertiary: Color(0xFF4CAF50),
-    onTertiary: Color(0xFFFFFFFF),
+  tertiary: Color(0xFF4CAF50),
+  onTertiary: Color(0xFFFFFFFF),
 
-    outline: Color(0xFF888888),
-    shadow: Color(0xFF000000),
+  outline: Color(0xFF888888),
+  shadow: Color(0xFF000000),
+);
+
+final textThemes = GoogleFonts.acmeTextTheme(
+  TextTheme(
+    titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 24),
+    labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 48),
+    bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
+    bodySmall: TextStyle(color: Color(0xFFFFC745), fontSize: 24),
   ),
-  textTheme: GoogleFonts.acmeTextTheme(
-    TextTheme(
-      titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 24),
-      labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 48),
-      bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
-      bodySmall: TextStyle(color: Color(0xFFFFC745), fontSize: 24),
-    ),
+);
+
+final loginContainerDecoration = BoxDecoration(
+  gradient: LinearGradient(
+    colors: [colorsScheme.inversePrimary, colorsScheme.secondary],
+  ),
+);
+
+final pagesDecoration = BoxDecoration(
+  gradient: LinearGradient(
+    colors: [colorsScheme.primary, colorsScheme.inversePrimary],
+    begin: AlignmentGeometry.centerLeft,
+    end: AlignmentGeometry.bottomRight,
+  ),
+);
+
+final kodishaTheme = ThemeData(
+  colorScheme: colorsScheme,
+  textTheme: textThemes,
+  appBarTheme: AppBarTheme(
+    backgroundColor: colorsScheme.inversePrimary,
+    titleTextStyle: textThemes.titleLarge,
   ),
   inputDecorationTheme: InputDecorationThemeData(
     contentPadding: EdgeInsets.all(18),
