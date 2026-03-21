@@ -82,9 +82,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           ),
           SizedBox(
             child: loginSuccess.when(
-              data: (data) => Card(child: Text(data["token"])),
-              error: (error, statck) =>
-                  SnackBar(content: Text("Login error: $error $statck")),
+              data: (data) => Card(child: Text(data)),
+              error: (error, statck) => Text("$error"),
               loading: () => CircularProgressIndicator(),
             ),
           ),
