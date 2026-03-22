@@ -5,7 +5,7 @@ final dio = Dio();
 
 class LoginService {
   final loginUrl = dotenv.env["LOGIN_URL"];
-  Future<String> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await dio.post(
         loginUrl!,
@@ -14,8 +14,11 @@ class LoginService {
       );
 
       //print('Login success: ${response.data}');
-      return response.data["token"];
+      return response.data;
     } on DioException catch (e) {
+      if (e.response?.data == null) {
+        throw '${e.error}';
+      }
       throw '${e.response?.data["error"]}';
     }
   }

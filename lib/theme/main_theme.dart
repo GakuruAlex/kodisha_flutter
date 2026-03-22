@@ -25,9 +25,14 @@ final colorsScheme = ColorScheme(
 
 final textThemes = GoogleFonts.acmeTextTheme(
   TextTheme(
-    titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 24),
-    labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 48),
-    bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
+    titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 32),
+    titleMedium: TextStyle(color: Color(0xFFDD0404), fontSize: 28),
+    titleSmall: TextStyle(color: Color(0xFFFFFFFF)),
+
+    labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
+    labelSmall: TextStyle(color: Color(0xFF181003), fontSize: 24),
+
+    bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 28),
     bodySmall: TextStyle(color: Color(0xFFFFC745), fontSize: 24),
   ),
 );
@@ -52,6 +57,7 @@ final kodishaTheme = ThemeData(
   appBarTheme: AppBarTheme(
     backgroundColor: colorsScheme.inversePrimary,
     titleTextStyle: textThemes.titleLarge,
+    actionsPadding: EdgeInsets.all(4),
   ),
   inputDecorationTheme: InputDecorationThemeData(
     contentPadding: EdgeInsets.all(18),
@@ -60,6 +66,15 @@ final kodishaTheme = ThemeData(
     border: OutlineInputBorder(
       borderSide: BorderSide(style: BorderStyle.solid),
       borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+  ),
+
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: colorsScheme.primary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(12),
+      ),
     ),
   ),
 );

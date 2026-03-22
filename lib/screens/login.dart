@@ -7,16 +7,18 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Login", style: Theme.of(context).textTheme.titleLarge),
-      ),
-      body: Center(
-        child: Container(
-          height: MediaQuery.sizeOf(context).height * 0.8,
-          width: MediaQuery.sizeOf(context).width * .8,
-          decoration: loginContainerDecoration,
-          child: Card(elevation: 12, child: LoginForm()),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Login", style: Theme.of(context).textTheme.titleLarge),
+        ),
+        body: Center(
+          child: Container(
+            height: MediaQuery.sizeOf(context).height * 0.88,
+            width: MediaQuery.sizeOf(context).width * .98,
+            decoration: loginContainerDecoration,
+            child: Card(elevation: 12, child: LoginForm()),
+          ),
         ),
       ),
     );
