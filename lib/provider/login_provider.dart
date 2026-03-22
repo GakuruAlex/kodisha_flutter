@@ -5,6 +5,20 @@ final loginNotifier = AsyncNotifierProvider<AsyncLoginNotifier, String>(
   () => AsyncLoginNotifier(),
 );
 final loginServiceProvider = Provider((ref) => LoginService());
+final roleProvider = NotifierProvider<RoleNotifier, String>(
+  () => RoleNotifier(),
+);
+
+class RoleNotifier extends Notifier<String> {
+  @override
+  String build() {
+    return "";
+  }
+
+  void setRole(String role) {
+    state = role;
+  }
+}
 
 class AsyncLoginNotifier extends AsyncNotifier<String> {
   @override
@@ -17,7 +31,10 @@ class AsyncLoginNotifier extends AsyncNotifier<String> {
     state = AsyncLoading();
     try {
       final response = await loginService.login(email, password);
-      state = AsyncValue.data(response);
+      state = AsyncValue.data(response["token"]);
+      if (response.isNotEmpty) {
+        ref.read(roleProvider.notifier).setRole(response["user"]["role"]);
+      }
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }

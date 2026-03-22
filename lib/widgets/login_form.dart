@@ -56,31 +56,31 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             formLabel: "Password",
             controller: _passwordController,
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 8),
 
-          ElevatedButton(
-            style: ButtonStyle(
-              minimumSize: WidgetStatePropertyAll(Size(144, 50)),
-              maximumSize: WidgetStatePropertyAll(Size(220, 50)),
-              padding: WidgetStatePropertyAll(EdgeInsetsGeometry.all(12)),
-              backgroundColor: WidgetStatePropertyAll(
-                Theme.of(context).colorScheme.primary,
-              ),
-            ),
-
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                loginProvider.loginUser(
-                  _emailController.text,
-                  _passwordController.text,
-                );
-              }
-            },
-            child: ListTile(
-              leading: Icon(Icons.login),
-              title: Text(
-                "Login",
-                style: Theme.of(context).textTheme.bodySmall,
+          SizedBox(
+            width: MediaQuery.sizeOf(context).width * .5,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    loginProvider.loginUser(
+                      _emailController.text,
+                      _passwordController.text,
+                    );
+                  }
+                },
+                child: ListTile(
+                  leading: Icon(
+                    Icons.login,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                  title: Text(
+                    "Login",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
               ),
             ),
           ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
 Future main() async {
+  //debugPaintSizeEnabled = true;
   await dotenv.load(fileName: ".env");
   runApp(ProviderScope(child: const MyApp()));
 }
