@@ -33,4 +33,14 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
       state = AsyncValue.error(error, stack);
     }
   }
+
+  void addUser(Map<String, dynamic> userData) {
+    print("In user notifier");
+    final lastItemId = state.value!.last.id;
+    userData["id"] = lastItemId! + 1;
+    User user = User.fromJson(userData);
+    print("${user}");
+    state = AsyncLoading();
+    state = AsyncValue.data([...state.value!, user]);
+  }
 }

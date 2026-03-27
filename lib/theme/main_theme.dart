@@ -27,7 +27,7 @@ final textThemes = GoogleFonts.acmeTextTheme(
   TextTheme(
     titleLarge: TextStyle(color: Color(0xFF181003), fontSize: 32),
     titleMedium: TextStyle(color: Color(0xFFDD0404), fontSize: 28),
-    titleSmall: TextStyle(color: Color(0xFFFFFFFF)),
+    titleSmall: TextStyle(color: Color(0xFFFFFFFF), fontSize: 22),
 
     labelLarge: TextStyle(color: Color(0xFFFFC745), fontSize: 32),
     labelSmall: TextStyle(color: Color(0xFF181003), fontSize: 24),
