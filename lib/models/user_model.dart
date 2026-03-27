@@ -38,4 +38,21 @@ class User {
       id: user["id"],
     );
   }
+  Map<String, dynamic> toJson(List<String> fields) {
+    final data = {"user": {}};
+    final allFields = {
+      "firstname": firstname,
+      "lastname": lastname,
+      "email_address": emailAddress,
+      "phonenumber": phonenumber,
+    };
+
+    if (fields.isEmpty) data["user"] = allFields;
+    for (var field in fields) {
+      if (allFields.containsKey(field)) {
+        data["user"]![field] = allFields[field];
+      }
+    }
+    return data;
+  }
 }

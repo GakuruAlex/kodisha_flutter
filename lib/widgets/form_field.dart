@@ -27,6 +27,7 @@ class FormFieldWidget extends StatelessWidget {
       child: ListTile(
         leading: Icon(formIcon),
         title: TextFormField(
+          keyboardType: TextInputType.text,
           cursorColor: Theme.of(context).colorScheme.inversePrimary,
           controller: controller,
           obscureText: fieldType.toLowerCase() == 'password' ? true : false,
