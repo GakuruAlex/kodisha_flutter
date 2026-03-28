@@ -12,18 +12,17 @@ class User {
   final String? emailAddress;
   final String? phonenumber;
 
-  User copywith(
+  User copywith({
     String? firstname,
     int? id,
-
     String? lastname,
     String? emailAddress,
     String? phonenumber,
-  ) {
+  }) {
     return User(
       firstname: firstname ?? this.firstname,
       lastname: lastname ?? this.lastname,
-      emailAddress: emailAddress ?? this.lastname,
+      emailAddress: emailAddress ?? this.emailAddress,
       phonenumber: phonenumber ?? this.phonenumber,
       id: id ?? this.id,
     );
@@ -38,9 +37,9 @@ class User {
       id: user["id"],
     );
   }
-  Map<String, dynamic> toJson(List<String> fields) {
+  Map<String, Map<dynamic, dynamic>> toJson(List<String> fields) {
     final data = {"user": {}};
-    final allFields = {
+    final Map<String, dynamic> allFields = {
       "firstname": firstname,
       "lastname": lastname,
       "email_address": emailAddress,

@@ -64,13 +64,18 @@ class _UserFormState extends ConsumerState<UserForm> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    print("Submit");
                     userNotifierProvider.addUser({
                       "firstname": _firstNameController.text,
                       "lastname": _lastNameController.text,
                       "phonenumber": _phoneController.text,
                       "email_address": _emailController.text,
                     });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("${_firstNameController.text} created!"),
+                      ),
+                    );
+
                     Navigator.of(context).pop();
                   }
                 },

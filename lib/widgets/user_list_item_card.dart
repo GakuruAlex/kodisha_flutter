@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/user_model.dart';
+import 'package:kodisha_flutter/provider/users_provider.dart';
 import 'package:kodisha_flutter/screens/user_detail_screen.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
@@ -8,9 +9,35 @@ class UserListItemCard extends ConsumerWidget {
   const UserListItemCard({super.key, required this.user});
 
   final User user;
+  Future<bool> _showDeleteDialog(BuildContext context) async {
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text("Delete User"),
+        content: Text("Do you accept ?"),
+        elevation: 24,
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Yes", style: Theme.of(context).textTheme.titleSmall),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              "Cancel",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userNotifierProvider = ref.read(userNotifier.notifier);
     return Card(
       elevation: 10,
       shadowColor: colorsScheme.tertiary,
@@ -42,6 +69,20 @@ class UserListItemCard extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ],
+              ),
+              SizedBox(height: 10),
+              IconButton(
+                onPressed: () {
+                  _showDeleteDialog(context).then((onValue) {
+                    if (onValue) {
+                      userNotifierProvider.deleteUser(user.id!);
+                    }
+                  });
+                },
+                icon: Icon(
+                  Icons.delete_forever,
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                ),
               ),
             ],
           ),
