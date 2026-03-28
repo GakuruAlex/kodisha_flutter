@@ -11,6 +11,7 @@ class KodishaHomepage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final usersProvider = ref.watch(userNotifier);
+    //final usersProviderF = ref.watch(userNotifier.notifier);
 
     return SafeArea(
       child: Scaffold(
@@ -57,13 +58,29 @@ class KodishaHomepage extends ConsumerWidget {
             ),
             error: (error, stack) => Center(
               child: Card(
-                child: Text(
-                  '$error',
-                  style: Theme.of(context).textTheme.titleMedium,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$error',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        ref.invalidate(userNotifier);
+                      },
+                      icon: Icon(
+                        Icons.refresh,
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            loading: () => CircularProgressIndicator(),
+            loading: () => Center(child: CircularProgressIndicator()),
           ),
         ),
         floatingActionButton: FloatingActionButton(

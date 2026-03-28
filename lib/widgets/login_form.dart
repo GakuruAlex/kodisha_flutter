@@ -49,14 +49,14 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             formIcon: Icons.email,
             controller: _emailController,
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 40),
           FormFieldWidget(
             fieldType: "password",
             formIcon: Icons.password,
             formLabel: "Password",
             controller: _passwordController,
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 40),
 
           SizedBox(
             width: MediaQuery.sizeOf(context).width * .5,
@@ -83,11 +83,6 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 ),
               ),
             ),
-          ),
-          SizedBox(height: 20),
-          Text(
-            "Dont have an account Sign Up!",
-            style: Theme.of(context).textTheme.bodySmall,
           ),
           SizedBox(
             child: loginSuccess.when(
