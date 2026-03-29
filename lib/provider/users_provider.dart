@@ -63,9 +63,27 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
           .read(userService)
           .destroyUser(token: token.value!, id: id);
       state = AsyncValue.data(afterDelete);
-      print(response);
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
   }
+
+  void updateUser(User updatedUser) {
+    List<User> users = state.value!;
+    state = AsyncData(
+      users.map((user) {
+        if (user.id == updatedUser.id) {
+          return updatedUser; // replace the changed one
+        }
+        return user;
+      }).toList(),
+    );
+  }
 }
+
+final userDetailProvider = Provider.family<User?, int>((ref, userId) {
+  final users = ref.watch(userNotifier);
+  List<User> currentUsers = users.value!;
+
+  return currentUsers.where((user) => user.id == userId).first;
+});

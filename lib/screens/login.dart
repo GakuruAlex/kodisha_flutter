@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
-import 'package:kodisha_flutter/widgets/login_form.dart';
+import 'package:kodisha_flutter/widgets/form/login_form.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});

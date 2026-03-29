@@ -7,14 +7,14 @@ class NewUser extends StatelessWidget {
   @override
   build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Add a new User")),
+      appBar: AppBar(title: Text("Add a new user")),
       body: Center(
         child: Container(
           decoration: loginContainerDecoration,
 
           height: MediaQuery.sizeOf(context).height * 0.88,
           width: MediaQuery.sizeOf(context).width * .98,
-          child: Card(child: UserForm()),
+          child: Card(child: UserForm(type: "New")),
         ),
       ),
     );
