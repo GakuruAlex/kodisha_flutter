@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/screens/kodisha_homepage.dart';
-import 'package:kodisha_flutter/widgets/form_field.dart';
+import 'package:kodisha_flutter/widgets/form/form_field.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
   const LoginForm({super.key});
@@ -44,6 +44,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FormFieldWidget(
+            type: "Login",
             fieldType: "email",
             formLabel: "Email Address",
             formIcon: Icons.email,
@@ -51,6 +52,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           ),
           SizedBox(height: 40),
           FormFieldWidget(
+            type: "Login",
             fieldType: "password",
             formIcon: Icons.password,
             formLabel: "Password",
@@ -87,7 +89,15 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           SizedBox(
             child: loginSuccess.when(
               data: (data) => const SizedBox.shrink(),
-              error: (error, statck) => Text("$error"),
+              error: (error, statck) => Card(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: Text(
+                  "$error",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
               loading: () => CircularProgressIndicator(),
             ),
           ),

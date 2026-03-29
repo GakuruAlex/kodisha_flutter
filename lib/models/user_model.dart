@@ -1,3 +1,4 @@
+// ignore: camel_case_types
 class User {
   const User({
     this.id,
@@ -37,6 +38,7 @@ class User {
       id: user["id"],
     );
   }
+
   Map<String, Map<dynamic, dynamic>> toJson(List<String> fields) {
     final data = {"user": {}};
     final Map<String, dynamic> allFields = {

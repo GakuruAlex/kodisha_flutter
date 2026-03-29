@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:kodisha_flutter/models/user_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/provider/users_provider.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
+import 'package:kodisha_flutter/widgets/form/user_form.dart';
 
-class UserDetailScreen extends StatelessWidget {
-  const UserDetailScreen({super.key, required this.user});
-  final User user;
-
+class UserDetailScreen extends ConsumerWidget {
+  const UserDetailScreen({super.key, required this.userId});
+  final int userId;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userDetailProvider(userId));
     return Scaffold(
-      appBar: AppBar(title: Text('${user.firstname!}')),
+      appBar: AppBar(title: Text(user!.firstname!)),
       body: Center(
         child: Container(
           height: MediaQuery.sizeOf(context).height * 0.90,
@@ -23,7 +25,7 @@ class UserDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Name: ${user.firstname}',
+                    'Name: ${user.firstname} ${user.lastname}',
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                   SizedBox(height: 10),
@@ -41,7 +43,14 @@ class UserDetailScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: ListTile(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    UserForm(type: "Edit", id: userId),
+                              ),
+                            );
+                          },
                           tileColor: Color.fromARGB(248, 8, 131, 121),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusGeometry.circular(8),
@@ -60,8 +69,8 @@ class UserDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadiusGeometry.circular(8),
                             side: BorderSide(color: Color(0xFF76C6F5)),
                           ),
-                          leading: Icon(Icons.delete),
-                          title: Text("Delete"),
+                          leading: Icon(Icons.admin_panel_settings),
+                          title: Text("Make Landlord"),
                         ),
                       ),
                     ],

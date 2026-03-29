@@ -46,7 +46,9 @@ class UserListItemCard extends ConsumerWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => UserDetailScreen(user: user),
+              builder: (context) {
+                return UserDetailScreen(userId: user.id!);
+              },
             ),
           );
         },
@@ -70,12 +72,14 @@ class UserListItemCard extends ConsumerWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
               IconButton(
                 onPressed: () {
                   _showDeleteDialog(context).then((onValue) {
                     if (onValue) {
                       userNotifierProvider.deleteUser(user.id!);
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text("User Deleted!")));
                     }
                   });
                 },
