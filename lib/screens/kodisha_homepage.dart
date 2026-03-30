@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/users_provider.dart';
+import 'package:kodisha_flutter/pages/homepage.dart';
+import 'package:kodisha_flutter/pages/landlord_page.dart';
+import 'package:kodisha_flutter/pages/tenants_page.dart';
+import 'package:kodisha_flutter/provider/page_provider.dart';
 import 'package:kodisha_flutter/screens/new_user.dart';
-import 'package:kodisha_flutter/theme/main_theme.dart';
-import 'package:kodisha_flutter/widgets/user_list_item_card.dart';
+import 'package:kodisha_flutter/widgets/navigation/bottom_navigation.dart';
+import 'package:kodisha_flutter/widgets/navigation/destination_item.dart';
 
 class KodishaHomepage extends ConsumerWidget {
   const KodishaHomepage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final usersProvider = ref.watch(userNotifier);
-    //final usersProviderF = ref.watch(userNotifier.notifier);
+    final currentPage = ref.watch(pageProvider);
 
     return SafeArea(
       child: Scaffold(
@@ -33,55 +35,22 @@ class KodishaHomepage extends ConsumerWidget {
           ],
         ),
 
-        body: Container(
-          padding: EdgeInsets.only(top: 20),
-          height: MediaQuery.sizeOf(context).height * 0.84,
-          width: MediaQuery.sizeOf(context).width,
-
-          decoration: loginContainerDecoration,
-          child: usersProvider.when(
-            data: (data) => SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: GridView.builder(
-                  itemCount: data.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    childAspectRatio: 2,
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 1,
-                    crossAxisSpacing: 1,
-                  ),
-                  itemBuilder: (BuildContext context, int index) =>
-                      UserListItemCard(user: data[index]),
-                ),
-              ),
+        body: [HomePage(), LandlordPage(), TenantsPage()][currentPage],
+        bottomNavigationBar: BottomNavigation(
+          destinationsWidgets: [
+            DestinationItem(
+              destinationIcon: Icons.home,
+              destinationLabel: "Home",
             ),
-            error: (error, stack) => Center(
-              child: Card(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$error',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        ref.invalidate(userNotifier);
-                      },
-                      icon: Icon(
-                        Icons.refresh,
-                        color: Theme.of(context).colorScheme.inversePrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            DestinationItem(
+              destinationIcon: Icons.work,
+              destinationLabel: "Landlords",
             ),
-            loading: () => Center(child: CircularProgressIndicator()),
-          ),
+            DestinationItem(
+              destinationIcon: Icons.house,
+              destinationLabel: "Tenants",
+            ),
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {

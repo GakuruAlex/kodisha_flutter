@@ -6,8 +6,13 @@ class User {
     this.lastname,
     this.emailAddress,
     this.phonenumber,
+    this.landlord,
+    this.tenant,
   });
   final int? id;
+  final bool? landlord;
+  final bool? tenant;
+
   final String? firstname;
   final String? lastname;
   final String? emailAddress;
@@ -36,6 +41,7 @@ class User {
       emailAddress: user['email_address'],
       phonenumber: user['phonenumber'],
       id: user["id"],
+      landlord: user["landlord"],
     );
   }
 

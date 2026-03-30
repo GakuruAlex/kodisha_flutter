@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 //import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/pages/landlord_page.dart';
+import 'package:kodisha_flutter/pages/tenants_page.dart';
+import 'package:kodisha_flutter/screens/kodisha_homepage.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
@@ -20,6 +23,11 @@ class MyApp extends StatelessWidget {
       title: 'Kodisha',
       theme: kodishaTheme,
       home: const Login(),
+      routes: {
+        '/home': (context) => KodishaHomepage(),
+        '/landlords': (context) => const LandlordPage(),
+        '/tenants': (context) => const TenantsPage(),
+      },
     );
   }
 }
