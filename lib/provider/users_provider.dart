@@ -42,7 +42,12 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
       final response = await ref
           .read(userService)
           .postUser(data: user.toJson([]), token: token.value!);
-      state = AsyncValue.data([...state.value!, user.copywith(id: response)]);
+      if (response.statusCode! == 201) {
+        state = AsyncValue.data([
+          ...state.value!,
+          user.copywith(id: response.data["id"]),
+        ]);
+      }
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
@@ -62,22 +67,56 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
       final response = await ref
           .read(userService)
           .destroyUser(token: token.value!, id: id);
-      state = AsyncValue.data(afterDelete);
+      if (response.statusCode! == 200) {
+        state = AsyncValue.data(afterDelete);
+      }
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
   }
 
-  void updateUser(User updatedUser) {
+  void updateUser(User updatedUser) async {
+    final token = ref.watch(loginNotifier);
+    state = AsyncLoading();
     List<User> users = state.value!;
-    state = AsyncData(
-      users.map((user) {
-        if (user.id == updatedUser.id) {
-          return updatedUser; // replace the changed one
-        }
-        return user;
-      }).toList(),
-    );
+    try {
+      final response = await ref
+          .read(userService)
+          .update(
+            token: token.value!,
+            id: updatedUser.id!,
+            data: updatedUser.toJson([]),
+          );
+
+      if (response.statusCode! == 200) {
+        state = AsyncData(
+          users.map((user) {
+            if (user.id == updatedUser.id) {
+              return updatedUser;
+            }
+            return user;
+          }).toList(),
+        );
+      }
+    } catch (error, stack) {
+      state = AsyncValue.error(error, stack);
+    }
+  }
+
+  void getLandlords() async {
+    state = AsyncLoading();
+    List<User> users = state.value!;
+    try {
+      state = AsyncData(
+        users.where((user) {
+          print("${user.landlord}");
+
+          return user.landlord == true;
+        }).toList(),
+      );
+    } catch (error, stack) {
+      state = AsyncValue.error(error, stack);
+    }
   }
 }
 

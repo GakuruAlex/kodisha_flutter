@@ -39,4 +39,6 @@ class AsyncLoginNotifier extends AsyncNotifier<String> {
       state = AsyncValue.error(error, stackTrace);
     }
   }
+
+  Future<void> logout() async {}
 }

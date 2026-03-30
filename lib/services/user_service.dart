@@ -25,7 +25,7 @@ class UserService {
     }
   }
 
-  Future<int> postUser({
+  Future<Response> postUser({
     required String token,
     required Map<String, Map<dynamic, dynamic>> data,
   }) async {
@@ -41,13 +41,13 @@ class UserService {
           },
         ),
       );
-      return response.data["id"];
+      return response;
     } on DioException catch (e) {
       throw '${e.response?.data}';
     }
   }
 
-  Future<String> destroyUser({required String token, required int id}) async {
+  Future<Response> destroyUser({required String token, required int id}) async {
     try {
       final response = await dio.delete(
         '$url/$id',
@@ -56,7 +56,27 @@ class UserService {
           headers: {'Authorization': 'Bearer $token'},
         ),
       );
-      return response.data["message"];
+      return response;
+    } on DioException catch (e) {
+      throw '${e.response?.data}';
+    }
+  }
+
+  Future<Response> update({
+    required String token,
+    required int id,
+    required data,
+  }) async {
+    try {
+      final response = await dio.patch(
+        '$url/$id',
+        options: Options(
+          method: "PATCH",
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+        data: data,
+      );
+      return response;
     } on DioException catch (e) {
       throw '${e.response?.data}';
     }

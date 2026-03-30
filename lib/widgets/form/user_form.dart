@@ -32,7 +32,7 @@ class _UserFormState extends ConsumerState<UserForm> {
     final userNotifierProvider = ref.read(userNotifier.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.type)),
+      appBar: widget.type == "New" ? null : AppBar(title: Text(widget.type)),
       body: Form(
         key: _formKey,
         child: Column(
