@@ -10,16 +10,19 @@ class BottomNavigation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final page = ref.watch(pageProvider);
+    ref.listen<int>(pageProvider, (previous, next) {
+      if (next == 1) {
+        ref.read(userNotifier.notifier).getLandlords();
+      }
+      if (next == 0) {
+        ref.read(userNotifier.notifier).getUsers();
+      }
+    });
+
     return NavigationBar(
       selectedIndex: page,
       onDestinationSelected: (value) {
         ref.read(pageProvider.notifier).state = value;
-        if (value == 0) {
-          ref.read(userNotifier.notifier).getUsers();
-        }
-        if (value == 1) {
-          ref.read(userNotifier.notifier).getLandlords();
-        }
       },
       destinations: destinationsWidgets,
     );
