@@ -34,6 +34,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     ref.listen<AuthRoleState>(authRoleProvider, (prev, next) {
       switch (next) {
         case AuthRoleState.loggedOut:
+          ref.invalidate(loginNotifier);
           Navigator.of(
             context,
           ).pushReplacement(MaterialPageRoute(builder: (ctx) => Login()));

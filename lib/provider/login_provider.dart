@@ -39,8 +39,6 @@ class AsyncLoginNotifier extends AsyncNotifier<String> {
       state = AsyncValue.error(error, stackTrace);
     }
   }
-
-  Future<void> logout() async {}
 }
 
 enum AuthRoleState { loggedOut, admin, member, unknown }
@@ -53,4 +51,8 @@ final authRoleProvider = Provider<AuthRoleState>((ref) {
   if (role == 'admin') return AuthRoleState.admin;
   if (role == 'member') return AuthRoleState.member;
   return AuthRoleState.unknown;
+});
+
+final logoutProvider = Provider((ref) {
+  ref.invalidate(loginNotifier);
 });

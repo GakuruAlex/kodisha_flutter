@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/theme/main_theme.dart';
 
 class EstatesItemsCard extends ConsumerWidget {
   const EstatesItemsCard({super.key, required this.id});
@@ -11,8 +12,12 @@ class EstatesItemsCard extends ConsumerWidget {
     final estate = ref.watch(estateProvider(id));
     return Card(
       elevation: 20,
-      shadowColor: Theme.of(context).colorScheme.inversePrimary,
+      clipBehavior: Clip.hardEdge,
+      shadowColor: Theme.of(context).colorScheme.onPrimary,
       child: InkWell(
+        onTap: () {},
+        splashColor: colorsScheme.inverseSurface,
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

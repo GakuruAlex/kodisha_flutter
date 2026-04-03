@@ -39,5 +39,8 @@ final estateProvider = Provider.family<Estate?, int>((ref, estate_id) {
   final List<Estate> estate_f = estates.value!;
 
   final estate = estates.value!.where((estate) => estate.id == estate_id);
+  if (estate.isEmpty) {
+    return null;
+  }
   return estate.first;
 });

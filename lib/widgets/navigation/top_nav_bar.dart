@@ -1,5 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/provider/admin/users_provider.dart';
+import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 
 class TopNavBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -30,9 +35,13 @@ class TopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               onTap: () {
-                Navigator.of(
-                  context,
-                ).pushReplacement(MaterialPageRoute(builder: (ctx) => Login()));
+                ref.invalidate(estateProvider);
+                ref.invalidate(estateProvider);
+                ref.invalidate(roleProvider);
+
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
               },
             ),
           ),
