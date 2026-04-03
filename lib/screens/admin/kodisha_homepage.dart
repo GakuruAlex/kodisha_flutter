@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/pages/homepage.dart';
+import 'package:kodisha_flutter/pages/admin/homepage.dart';
 import 'package:kodisha_flutter/pages/landlord_page.dart';
-import 'package:kodisha_flutter/pages/tenants_page.dart';
+import 'package:kodisha_flutter/provider/admin/users_provider.dart';
+import 'package:kodisha_flutter/provider/login_provider.dart';
+import 'package:kodisha_flutter/screens/landlord/tenants_page.dart';
 import 'package:kodisha_flutter/provider/page_provider.dart';
+import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/screens/new_user.dart';
 import 'package:kodisha_flutter/widgets/navigation/bottom_navigation.dart';
 import 'package:kodisha_flutter/widgets/navigation/destination_item.dart';
@@ -14,6 +17,14 @@ class KodishaHomepage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPage = ref.watch(pageProvider);
+    ref.listen<int>(pageProvider, (previous, next) {
+      if (next == 1) {
+        ref.read(userNotifier.notifier).getLandlords();
+      }
+      if (next == 0) {
+        ref.read(userNotifier.notifier).getUsers();
+      }
+    });
 
     return SafeArea(
       child: Scaffold(
@@ -29,7 +40,12 @@ class KodishaHomepage extends ConsumerWidget {
                   "Logout",
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
-                onTap: () {},
+                onTap: () {
+                  ref.invalidate(loginServiceProvider);
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (ctx) => Login()),
+                  );
+                },
               ),
             ),
           ],

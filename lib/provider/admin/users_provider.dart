@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/user_model.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
-import 'package:kodisha_flutter/services/user_service.dart';
+import 'package:kodisha_flutter/services/admin/user_service.dart';
 
 final userNotifier = AsyncNotifierProvider<AsyncUserNotifier, List<User>>(
   () => AsyncUserNotifier(),
@@ -109,8 +109,6 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
     try {
       state = AsyncData(
         users.where((user) {
-          print("${user.landlord}");
-
           return user.landlord == true;
         }).toList(),
       );

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
-import 'package:kodisha_flutter/screens/kodisha_homepage.dart';
+import 'package:kodisha_flutter/screens/admin/kodisha_homepage.dart';
+import 'package:kodisha_flutter/pages/landlord/landlord_homepage.dart';
+import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/widgets/form/form_field.dart';
 
 class LoginForm extends ConsumerStatefulWidget {
@@ -27,15 +30,30 @@ class _LoginFormState extends ConsumerState<LoginForm> {
   Widget build(BuildContext context) {
     final loginSuccess = ref.watch(loginNotifier);
     final loginProvider = ref.read(loginNotifier.notifier);
-    ref.listen(loginNotifier, (previous, next) {
-      next.whenOrNull(
-        data: (data) {
+
+    ref.listen<AuthRoleState>(authRoleProvider, (prev, next) {
+      switch (next) {
+        case AuthRoleState.loggedOut:
+          Navigator.of(
+            context,
+          ).pushReplacement(MaterialPageRoute(builder: (ctx) => Login()));
+          break;
+        case AuthRoleState.admin:
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => KodishaHomepage()),
+            MaterialPageRoute(builder: (ctx) => KodishaHomepage()),
           );
-        },
-      );
+          break;
+        case AuthRoleState.member:
+          ref.read(estatesProvider.notifier).landlordEstates();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (ctx) => LandlordHomepage()),
+          );
+          break;
+        default:
+          break;
+      }
     });
+
     return Form(
       key: _formKey,
       child: Column(
