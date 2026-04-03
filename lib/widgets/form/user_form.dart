@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/users_provider.dart';
+import 'package:kodisha_flutter/provider/admin/users_provider.dart';
 import 'package:kodisha_flutter/widgets/form/form_field.dart';
 
 class UserForm extends ConsumerStatefulWidget {

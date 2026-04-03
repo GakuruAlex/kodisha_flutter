@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/users_provider.dart';
+import 'package:kodisha_flutter/provider/admin/users_provider.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
-import 'package:kodisha_flutter/widgets/user_list_item_card.dart';
+import 'package:kodisha_flutter/widgets/cards/user_list_item_card.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});

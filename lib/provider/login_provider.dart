@@ -42,3 +42,15 @@ class AsyncLoginNotifier extends AsyncNotifier<String> {
 
   Future<void> logout() async {}
 }
+
+enum AuthRoleState { loggedOut, admin, member, unknown }
+
+final authRoleProvider = Provider<AuthRoleState>((ref) {
+  final user = ref.watch(loginNotifier).value;
+  final role = ref.watch(roleProvider);
+
+  if (user == null) return AuthRoleState.loggedOut;
+  if (role == 'admin') return AuthRoleState.admin;
+  if (role == 'member') return AuthRoleState.member;
+  return AuthRoleState.unknown;
+});
