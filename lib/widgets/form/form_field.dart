@@ -40,7 +40,6 @@ class FormFieldWidget extends ConsumerWidget {
           leading: Icon(formIcon),
           title: type == "Edit"
               ? TextFormField(
-                  keyboardType: TextInputType.text,
                   cursorColor: Theme.of(context).colorScheme.inversePrimary,
                   controller: controller,
                   obscureText: fieldType.toLowerCase() == 'password'
@@ -52,7 +51,6 @@ class FormFieldWidget extends ConsumerWidget {
                   decoration: InputDecoration(label: Text(formLabel)),
                 )
               : TextFormField(
-                  keyboardType: TextInputType.text,
                   cursorColor: Theme.of(context).colorScheme.inversePrimary,
                   controller: controller,
                   obscureText: fieldType.toLowerCase() == 'password'

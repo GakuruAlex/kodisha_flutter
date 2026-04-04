@@ -1,3 +1,5 @@
+import 'package:kodisha_flutter/models/house_model.dart';
+
 class Estate {
   const Estate({
     this.id,
@@ -5,9 +7,11 @@ class Estate {
     this.name,
     this.numHouses,
     this.vacancy,
+    this.houses,
   });
 
   final String? location;
+  final List<dynamic>? houses;
   final bool? vacancy;
   final String? name;
   final int? numHouses;
@@ -19,6 +23,7 @@ class Estate {
     int? numHouses,
     int? id,
     bool? vacancy,
+    List<dynamic>? houses,
   }) {
     return Estate(
       vacancy: vacancy ?? this.vacancy,
@@ -26,16 +31,22 @@ class Estate {
       name: name ?? this.name,
       id: id ?? this.id,
       numHouses: numHouses ?? this.numHouses,
+      houses: houses ?? this.houses ?? [],
     );
   }
 
   factory Estate.fromJson(Map<String, dynamic> estate) {
+    var housesE = estate["houses"] ?? [];
+    List<dynamic> estateHouses = housesE
+        .map((house) => House.fromJson(house))
+        .toList();
     return Estate(
       location: estate["location"],
       name: estate["name"],
       id: estate["id"],
       numHouses: estate["houses_count"],
       vacancy: estate["has_vacancy"],
+      houses: estateHouses,
     );
   }
   Map<String, Map<dynamic, dynamic>> toJson() {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/pages/admin/homepage.dart';
-import 'package:kodisha_flutter/pages/landlord_page.dart';
+import 'package:kodisha_flutter/pages/admin/landlord_page.dart';
 import 'package:kodisha_flutter/provider/admin/users_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/screens/landlord/tenants_page.dart';
