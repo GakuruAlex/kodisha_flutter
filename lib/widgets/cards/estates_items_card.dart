@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/screens/details/estate_detail.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
 class EstatesItemsCard extends ConsumerWidget {
@@ -11,12 +12,19 @@ class EstatesItemsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estate = ref.watch(estateProvider(id));
     return Card(
+      color: estate!.vacancy!
+          ? colorsScheme.primary
+          : colorsScheme.errorContainer,
       elevation: 20,
       clipBehavior: Clip.hardEdge,
       shadowColor: Theme.of(context).colorScheme.onPrimary,
       child: InkWell(
-        onTap: () {},
-        splashColor: colorsScheme.inverseSurface,
+        onTap: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => EstateDetail(id: id)));
+        },
+        splashColor: Theme.of(context).colorScheme.onPrimary,
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -32,7 +40,7 @@ class EstatesItemsCard extends ConsumerWidget {
                     ),
                     SizedBox(width: 8),
                     Text(
-                      estate!.name!,
+                      estate.name!,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ],
@@ -68,7 +76,7 @@ class EstatesItemsCard extends ConsumerWidget {
                     ),
                     SizedBox(width: 8),
                     Text(
-                      "${estate.numHouses!}",
+                      "${estate.numHouses}",
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ],

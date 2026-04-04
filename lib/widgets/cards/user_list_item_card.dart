@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/user_model.dart';
 import 'package:kodisha_flutter/provider/admin/users_provider.dart';
-import 'package:kodisha_flutter/screens/user_detail_screen.dart';
+import 'package:kodisha_flutter/screens/details/user_detail_screen.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
 class UserListItemCard extends ConsumerWidget {
@@ -54,7 +54,7 @@ class UserListItemCard extends ConsumerWidget {
         },
         splashColor: colorsScheme.onSurface,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(4.0),
           child: Column(
             children: [
               Row(
@@ -65,7 +65,7 @@ class UserListItemCard extends ConsumerWidget {
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Text(
                     ' ${user.lastname} ',
                     style: Theme.of(context).textTheme.titleSmall,
