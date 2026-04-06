@@ -10,4 +10,9 @@ class House {
   factory House.fromJson(Map<String, dynamic> house) {
     return House(name: house["house_name"], id: house["id"]);
   }
+  Map<String, dynamic> toJson() {
+    return {
+      "house": {"house_name": name},
+    };
+  }
 }

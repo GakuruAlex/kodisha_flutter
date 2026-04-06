@@ -35,7 +35,7 @@ class EstatesPage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "$error $stack",
+                      "$error",
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],

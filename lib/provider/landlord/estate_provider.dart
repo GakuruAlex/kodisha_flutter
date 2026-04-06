@@ -14,7 +14,7 @@ final estatesProvider = AsyncNotifierProvider<EstatesNotifier, List<Estate>>(
 class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   @override
   List<Estate> build() {
-    //landlordEstates();
+    landlordEstates();
     return [];
   }
 

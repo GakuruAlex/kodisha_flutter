@@ -1,13 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/models/estate_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/provider/login_provider.dart';
+import 'package:kodisha_flutter/services/landlord/estate_service.dart';
 
 final housesNotifierProvider =
-    NotifierProvider.family<HouseNotifier, List<House>, int>(
+    AsyncNotifierProvider.family<HouseNotifier, List<House>, int>(
       (estateId) => HouseNotifier(estateId),
     );
+final estateServiceProvider = Provider((ref) => EstateService());
 
-class HouseNotifier extends Notifier<List<House>> {
+class HouseNotifier extends AsyncNotifier<List<House>> {
   HouseNotifier(this.estateId);
   int estateId;
   @override
@@ -16,14 +20,30 @@ class HouseNotifier extends Notifier<List<House>> {
   }
 
   List<House> getHouses(int estateId) {
-    final currentEstate = ref.read(estateProvider(estateId));
+    final Estate currentEstate = ref.read(estateProvider(estateId))!;
 
-    return currentEstate!.houses!.length > 1
-        ? currentEstate.houses as List<House>
-        : [];
+    return currentEstate.houses!.isNotEmpty ? currentEstate.houses! : [];
   }
 
-  void addHouse(House house) {
-    state = [...state, house];
+  void addHouse(House house) async {
+    state = AsyncLoading();
+    final token = ref.watch(loginNotifier).value;
+    final estateService = ref.read(estateServiceProvider);
+    try {
+      final response = await estateService.postHouse(
+        data: house.toJson(),
+        token: token!,
+        estateId: estateId,
+      );
+      print("Response is: $response");
+
+      if (response.statusCode! == 201) {
+        state = AsyncData([...state.value!, House.fromJson(response.data)]);
+        ref.refresh(estatesProvider);
+        ref.refresh(estateProvider(estateId));
+      }
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
   }
 }

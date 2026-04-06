@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+//import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
 import 'package:kodisha_flutter/provider/page_provider.dart';
 import 'package:kodisha_flutter/pages/landlord/estates_page.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
@@ -15,11 +15,11 @@ class LandlordHomepage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final page = ref.watch(pageProvider);
-    ref.listen<int>(pageProvider, (previous, next) {
-      if (next == 0) {
-        ref.read(estatesProvider.notifier).landlordEstates();
-      }
-    });
+    //ref.listen<int>(pageProvider, (previous, next) {
+    //if (next == 0) {
+    //ref.read(estatesProvider.notifier).landlordEstates();
+    //}
+    //});
 
     return Scaffold(
       appBar: TopNavBar(title: "Landlord"),
