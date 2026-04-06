@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
+import 'package:kodisha_flutter/widgets/form/house_form.dart';
 
 class EstateDetail extends ConsumerWidget {
   const EstateDetail({super.key, required this.id});
@@ -10,6 +12,7 @@ class EstateDetail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final estate = ref.watch(estateProvider(id));
+    final houses = ref.watch(housesNotifierProvider(id));
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -61,13 +64,11 @@ class EstateDetail extends ConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height * .4,
-                    child: estate.houses!.isNotEmpty
+                    child: houses.isNotEmpty
                         ? ListView.builder(
-                            itemCount: estate.houses!.length,
+                            itemCount: houses.length,
                             itemBuilder: (BuildContext context, index) {
-                              return Text(
-                                "House No: ${estate.houses![index].name}",
-                              );
+                              return Text("House No: ${houses[index].name}");
                             },
                           )
                         : Text("No Houses yet."),
@@ -79,7 +80,12 @@ class EstateDetail extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            builder: (BuildContext context) => HouseForm(estateId: estate.id!),
+          );
+        },
         label: Text(
           "Add a house",
           style: TextStyle(color: colorsScheme.onPrimary, fontSize: 24),
