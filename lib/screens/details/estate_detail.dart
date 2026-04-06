@@ -64,14 +64,24 @@ class EstateDetail extends ConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
                     height: MediaQuery.of(context).size.height * .4,
-                    child: houses.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: houses.length,
-                            itemBuilder: (BuildContext context, index) {
-                              return Text("House No: ${houses[index].name}");
-                            },
-                          )
-                        : Text("No Houses yet."),
+                    child: houses.when(
+                      data: (data) => data.isNotEmpty
+                          ? ListView.builder(
+                              itemCount: data.length,
+                              itemBuilder: (BuildContext context, index) {
+                                return Text("House No: ${data[index].name}");
+                              },
+                            )
+                          : Text("No Houses yet."),
+
+                      error: (error, stackTrace) => Center(
+                        child: Text(
+                          "$error",
+                          style: TextStyle(color: colorsScheme.error),
+                        ),
+                      ),
+                      loading: () => Center(child: CircularProgressIndicator()),
+                    ),
                   ),
                 ),
               ),

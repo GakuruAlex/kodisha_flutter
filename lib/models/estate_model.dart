@@ -11,7 +11,7 @@ class Estate {
   });
 
   final String? location;
-  final List<dynamic>? houses;
+  final List<House>? houses;
   final bool? vacancy;
   final String? name;
   final int? numHouses;
@@ -23,7 +23,7 @@ class Estate {
     int? numHouses,
     int? id,
     bool? vacancy,
-    List<dynamic>? houses,
+    List<House>? houses,
   }) {
     return Estate(
       vacancy: vacancy ?? this.vacancy,
@@ -36,8 +36,8 @@ class Estate {
   }
 
   factory Estate.fromJson(Map<String, dynamic> estate) {
-    var housesE = estate["houses"] ?? [];
-    List<dynamic> estateHouses = housesE
+    List<dynamic> housesE = estate["houses"] ?? [];
+    List<House> estateHouses = housesE
         .map((house) => House.fromJson(house))
         .toList();
     return Estate(
