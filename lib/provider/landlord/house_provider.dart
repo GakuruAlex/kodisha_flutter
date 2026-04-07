@@ -27,6 +27,7 @@ class HouseNotifier extends AsyncNotifier<List<House>> {
 
   void addHouse(House house) async {
     state = AsyncLoading();
+
     final token = ref.watch(loginNotifier).value;
     final estateService = ref.read(estateServiceProvider);
     try {
@@ -35,12 +36,10 @@ class HouseNotifier extends AsyncNotifier<List<House>> {
         token: token!,
         estateId: estateId,
       );
-      print("Response is: $response");
+      //print("Response is: $response");
 
       if (response.statusCode! == 201) {
         state = AsyncData([...state.value!, House.fromJson(response.data)]);
-        ref.refresh(estatesProvider);
-        ref.refresh(estateProvider(estateId));
       }
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);

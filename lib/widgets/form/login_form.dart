@@ -45,7 +45,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           );
           break;
         case AuthRoleState.member:
-          ref.read(estatesProvider.notifier).landlordEstates();
+          //ref.read(estatesProvider.notifier).landlordEstates();
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (ctx) => LandlordHomepage()),
           );

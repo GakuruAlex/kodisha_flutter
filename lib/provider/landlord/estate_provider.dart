@@ -24,7 +24,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     state = AsyncLoading();
     try {
       final response = await userService.getEstates(token);
-      print(response);
+      //print(response);
       state = AsyncValue.data(response.map((d) => Estate.fromJson(d)).toList());
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
