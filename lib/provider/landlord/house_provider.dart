@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
-import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
+import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/estate_service.dart';
 

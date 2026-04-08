@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/screens/admin/kodisha_homepage.dart';
 import 'package:kodisha_flutter/pages/landlord/landlord_homepage.dart';
