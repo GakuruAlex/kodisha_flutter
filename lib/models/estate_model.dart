@@ -1,6 +1,7 @@
+import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 
-class Estate {
+class Estate implements FormModel {
   const Estate({
     this.id,
     this.location,
@@ -54,4 +55,11 @@ class Estate {
       "estate": {"location": location, "name": name},
     };
   }
+
+  @override
+  Map<String, dynamic> toFormValues() => {
+    "id": id,
+    "location": location,
+    "name": name,
+  };
 }
