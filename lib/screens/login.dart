@@ -17,7 +17,14 @@ class Login extends StatelessWidget {
             height: MediaQuery.sizeOf(context).height * 0.88,
             width: MediaQuery.sizeOf(context).width * .98,
             decoration: loginContainerDecoration,
-            child: Card(elevation: 12, child: LoginForm()),
+            child: Card(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [Text("Welcome back"), LoginForm()],
+              ),
+            ),
           ),
         ),
       ),

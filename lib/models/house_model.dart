@@ -1,4 +1,6 @@
-class House {
+import 'package:kodisha_flutter/models/form_model.dart';
+
+class House implements FormModel {
   const House({this.id, this.name});
   final String? name;
   final int? id;
@@ -15,4 +17,7 @@ class House {
       "house": {"house_name": name},
     };
   }
+
+  @override
+  Map<String, dynamic> toFormValues() => {"id": id, "name": name};
 }
