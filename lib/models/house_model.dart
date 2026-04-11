@@ -3,6 +3,7 @@ import 'package:kodisha_flutter/models/form_model.dart';
 class House implements FormModel {
   const House({this.id, this.name});
   final String? name;
+  @override
   final int? id;
 
   House copywith({String? name, int? id}) {

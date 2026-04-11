@@ -12,7 +12,8 @@ class HouseForm extends StatelessWidget {
     return Padding(
       padding: EdgeInsetsGeometry.all(12),
       child: DynamicForm(
-        formType: "create house",
+        id: estateId,
+        formType: "Create House",
         fields: [
           DynamicFormField(
             fieldLabel: "House Name",
@@ -20,9 +21,14 @@ class HouseForm extends StatelessWidget {
             fieldIcon: Icons.house,
           ),
         ],
-        controllers: {"house name": TextEditingController()},
+        controllers: {"housename": TextEditingController()},
         buttonIcon: Icons.create,
-        constraints: {},
+        constraints: {
+          "pad": 20,
+          "height": MediaQuery.sizeOf(context).height * .7,
+          "width": MediaQuery.sizeOf(context).width * .8,
+          "tileWidth": MediaQuery.sizeOf(context).width * .4,
+        },
       ),
     );
   }

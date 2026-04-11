@@ -16,6 +16,7 @@ class Estate implements FormModel {
   final bool? vacancy;
   final String? name;
   final int? numHouses;
+  @override
   final int? id;
 
   Estate copywith({

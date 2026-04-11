@@ -14,6 +14,7 @@ class DynamicForm extends ConsumerStatefulWidget {
     required this.buttonIcon,
     required this.constraints,
     this.model,
+    this.id,
   });
   final String formType;
   final List<DynamicFormField> fields;
@@ -21,6 +22,7 @@ class DynamicForm extends ConsumerStatefulWidget {
   final IconData buttonIcon;
   final Map<String, double> constraints;
   FormModel? model;
+  int? id;
 
   @override
   ConsumerState<DynamicForm> createState() => _DynamicFormState();
@@ -79,9 +81,13 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                         widget.formType,
                         widget.controllers,
                         widget.model,
+                        widget.id,
                       ),
                       ref,
                     );
+                    if (widget.formType.toLowerCase() != "login") {
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: ListTile(
                     leading: Icon(widget.buttonIcon),
