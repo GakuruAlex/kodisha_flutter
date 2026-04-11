@@ -76,6 +76,25 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
       state = AsyncValue.error(error, stackTrace);
     }
   }
+
+  void updateEstateHousesNumber({required int id}) {
+    state = AsyncLoading();
+
+    try {
+      final estate = state.value!.where((estate) => estate.id == id).first;
+      int numHouses = estate.numHouses!;
+      state = AsyncData([
+        ...state.value!.map((st) {
+          if (st.id == id) {
+            return st.copywith(numHouses: numHouses + 1);
+          }
+          return st;
+        }),
+      ]);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
 }
 
 final estateProvider = Provider.family<Estate?, int>((ref, estateId) {

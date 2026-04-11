@@ -27,6 +27,7 @@ class HouseNotifier extends AsyncNotifier<List<House>> {
 
   void addHouse(House house) async {
     state = AsyncLoading();
+    final Estate currentEstate = ref.read(estateProvider(estateId))!;
 
     final token = ref.watch(loginNotifier).value;
     final estateService = ref.read(estateServiceProvider);
