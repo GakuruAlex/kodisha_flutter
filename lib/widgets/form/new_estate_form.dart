@@ -1,80 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
-import 'package:kodisha_flutter/widgets/form/form_field.dart';
+import 'package:kodisha_flutter/models/form_field.dart';
+import 'package:kodisha_flutter/widgets/form/dynamic_form/dynamic_form.dart';
 
-class NewEstateForm extends ConsumerStatefulWidget {
-  const NewEstateForm({super.key});
+class NewEstateForm extends StatelessWidget {
+  NewEstateForm({super.key});
 
-  @override
-  ConsumerState<NewEstateForm> createState() => _NewEstateFormState();
-}
-
-class _NewEstateFormState extends ConsumerState<NewEstateForm> {
-  final _formKey = GlobalKey<FormState>();
-  final _estateNameController = TextEditingController();
-  final _estateLocationController = TextEditingController();
-
-  @override
-  void dispose() {
-    _estateNameController.dispose();
-    _estateLocationController.dispose();
-
-    super.dispose();
-  }
+  final controllers = {
+    "location": TextEditingController(),
+    "name": TextEditingController(),
+  };
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            FormFieldWidget(
-              fieldType: "Estate name",
-              formIcon: Icons.house,
-              formLabel: "Estate Name",
-              controller: _estateNameController,
-              type: "New",
-            ),
-            FormFieldWidget(
-              fieldType: "Estate location",
-              formIcon: Icons.place,
-              formLabel: "Estate location",
-              controller: _estateLocationController,
-              type: "New",
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              width: MediaQuery.sizeOf(context).width * .6,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      ref.read(estatesProvider.notifier).addEstate({
-                        "location": _estateLocationController.value.text,
-                        "name": _estateNameController.value.text,
-                      });
-                    }
-                    _formKey.currentState!.reset();
-                    Navigator.of(context).pop();
-                  },
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.send,
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                    title: Text(
-                      "Add Estate",
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: DynamicForm(
+        formType: "Create Estate",
+        fields: [
+          DynamicFormField(
+            fieldLabel: "Name",
+            textInputType: TextInputType.text,
+            fieldIcon: Icons.house,
+          ),
+          DynamicFormField(
+            fieldLabel: "Location",
+            textInputType: TextInputType.text,
+            fieldIcon: Icons.place,
+          ),
+        ],
+        controllers: controllers,
+        buttonIcon: Icons.add,
+        constraints: {
+          "pad": 20,
+          "height": MediaQuery.sizeOf(context).height * .5,
+          "Width": MediaQuery.sizeOf(context).width * .9,
+          "tileWidth": MediaQuery.sizeOf(context).width * .4,
+        },
       ),
     );
   }

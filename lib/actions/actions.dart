@@ -20,6 +20,12 @@ class CreateHouseInput extends ActionInput {
   final int estateId;
 }
 
+class NewEstateInput extends ActionInput {
+  NewEstateInput({required this.name, required this.location});
+  final String location;
+  final String name;
+}
+
 void runAction(ActionInput action, WidgetRef ref) {
   switch (action) {
     case LoginInput(:String email, :String password):
@@ -30,6 +36,12 @@ void runAction(ActionInput action, WidgetRef ref) {
           .read(housesNotifierProvider(estateId).notifier)
           .addHouse(House(name: houseName));
       ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: estateId);
+      break;
+    case NewEstateInput(:String name, :String location):
+      ref.read(estatesProvider.notifier).addEstate({
+        "location": location,
+        "name": name,
+      });
       break;
   }
 }
@@ -50,6 +62,11 @@ ActionInput buildAction(
       return CreateHouseInput(
         houseName: controllers["housename"]!.text,
         estateId: id!,
+      );
+    case "create estate":
+      return NewEstateInput(
+        name: controllers["name"]!.text,
+        location: controllers["location"]!.text,
       );
     default:
       throw UnsupportedError("Unknown form type: $formType");

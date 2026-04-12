@@ -23,7 +23,7 @@ class EstatesPage extends ConsumerWidget {
                     itemCount: data.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 1,
-                      childAspectRatio: 3,
+                      childAspectRatio: 2.5,
                     ),
                     itemBuilder: (context, index) =>
                         EstatesItemsCard(id: data[index].id!),
@@ -35,7 +35,7 @@ class EstatesPage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "$error",
+                      "$error $stack",
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],

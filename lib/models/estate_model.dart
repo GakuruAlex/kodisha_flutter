@@ -27,13 +27,18 @@ class Estate implements FormModel {
     bool? vacancy,
     List<House>? houses,
   }) {
+    List<dynamic> housesE = houses ?? [];
+    List<House> estateHouses = housesE
+        .map((house) => House.fromJson(house))
+        .toList();
+
     return Estate(
       vacancy: vacancy ?? this.vacancy,
       location: location ?? this.location,
       name: name ?? this.name,
       id: id ?? this.id,
       numHouses: numHouses ?? this.numHouses,
-      houses: houses ?? this.houses ?? [],
+      houses: estateHouses,
     );
   }
 
