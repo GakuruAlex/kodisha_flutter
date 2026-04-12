@@ -6,7 +6,7 @@ import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/widgets/form/form_field.dart';
 
 class DynamicForm extends ConsumerStatefulWidget {
-  DynamicForm({
+  const DynamicForm({
     super.key,
     required this.formType,
     required this.fields,
@@ -21,8 +21,8 @@ class DynamicForm extends ConsumerStatefulWidget {
   final Map<String, TextEditingController> controllers;
   final IconData buttonIcon;
   final Map<String, double> constraints;
-  FormModel? model;
-  int? id;
+  final FormModel? model;
+  final int? id;
 
   @override
   ConsumerState<DynamicForm> createState() => _DynamicFormState();

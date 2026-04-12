@@ -54,7 +54,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
             id: response.data["id"],
             numHouses: response.data["houses_count"],
             vacancy: response.data["has_vacancy"],
-            houses: response.data["houses"],
+            //houses: response.data["houses"],
           ),
         ]);
       }

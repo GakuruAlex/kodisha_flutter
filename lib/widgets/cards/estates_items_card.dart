@@ -97,9 +97,32 @@ class EstatesItemsCard extends ConsumerWidget {
                       estate.vacancy! ? "Available" : "Unavailable",
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
+                    SizedBox(height: 8),
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(estatesProvider.notifier).deleteEstate(id: estate.id!);
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                  colorsScheme.errorContainer,
+                ),
+                foregroundColor: WidgetStatePropertyAll(
+                  colorsScheme.onErrorContainer,
+                ),
+                minimumSize: WidgetStatePropertyAll(
+                  Size(
+                    MediaQuery.sizeOf(context).width * .3,
+                    MediaQuery.sizeOf(context).height * .03,
+                  ),
+                ),
+              ),
+
+              child: Text("Delete", style: TextStyle(fontSize: 18)),
             ),
           ],
         ),
