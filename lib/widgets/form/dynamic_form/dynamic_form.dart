@@ -32,7 +32,8 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    if (widget.formType.toLowerCase() == "edit" && widget.model != null) {
+    if (widget.formType.toLowerCase().contains("edit") &&
+        widget.model != null) {
       final values = widget.model!.toFormValues();
       widget.controllers.forEach((key, controller) {
         if (values.containsKey(key)) {
