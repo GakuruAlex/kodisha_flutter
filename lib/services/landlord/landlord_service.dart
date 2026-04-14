@@ -45,4 +45,27 @@ class LandlordService {
       throw "${e.response?.data["error"]}";
     }
   }
+
+  Future<Response> deleteEstate({
+    required String token,
+    required int estateID,
+  }) async {
+    final options = Options(
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    try {
+      final response = dio.delete(
+        "$landlordUrl/estates/$estateID",
+        options: options,
+      );
+      return response;
+    } on DioException catch (error) {
+      throw "${error.response?.data}";
+    }
+  }
 }

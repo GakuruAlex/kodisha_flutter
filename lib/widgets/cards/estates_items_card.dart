@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/actions/actions.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/screens/details/estate_detail.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
@@ -105,7 +106,25 @@ class EstatesItemsCard extends ConsumerWidget {
             SizedBox(height: 8),
             ElevatedButton(
               onPressed: () {
-                ref.read(estatesProvider.notifier).deleteEstate(id: estate.id!);
+                showDeleteDialog(context, "Estate").then((onvalue) {
+                  if (onvalue) {
+                    final response = ref
+                        .read(estatesProvider.notifier)
+                        .deleteEstate(id: estate.id!);
+                    response.then(
+                      (response) => {
+                        //print("RESPONSE IS $response"),
+                        if (response == 200)
+                          {
+                            //print("REPONSE IN MOUNTED IS $response"),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Estate Deleted!")),
+                            ),
+                          },
+                      },
+                    );
+                  }
+                });
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStatePropertyAll(

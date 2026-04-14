@@ -35,8 +35,20 @@ class EstatesPage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "$error $stack",
+                      "$error",
                       style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.invalidate(estatesProvider);
+                      },
+                      child: SizedBox(
+                        width: MediaQuery.sizeOf(context).width * .4,
+                        child: ListTile(
+                          leading: Icon(Icons.refresh_outlined),
+                          title: Text("Refresh"),
+                        ),
+                      ),
                     ),
                   ],
                 ),

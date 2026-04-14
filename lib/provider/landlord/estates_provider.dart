@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
+import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
 
@@ -63,17 +64,28 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     }
   }
 
-  void deleteEstate({required int id}) {
+  Future<int> deleteEstate({required int id}) async {
     state = AsyncLoading();
+    final token = ref.watch(loginNotifier).value;
+    final landlordService = ref.watch(landlordServiceProvider);
     try {
-      final currentState = state.value;
+      final response = await landlordService.deleteEstate(
+        token: token!,
+        estateID: id,
+      );
 
-      final afterDeleteState = currentState!
-          .where((estate) => estate.id != id)
-          .toList();
-      state = AsyncData(afterDeleteState);
+      if (response.statusCode == 200) {
+        final currentState = state.value;
+
+        final afterDeleteState = currentState!
+            .where((estate) => estate.id != id)
+            .toList();
+        state = AsyncData(afterDeleteState);
+      }
+      return response.statusCode!;
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
+      return 403;
     }
   }
 
