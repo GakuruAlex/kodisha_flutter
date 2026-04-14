@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
-import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
 
