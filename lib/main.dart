@@ -8,6 +8,7 @@ import 'package:kodisha_flutter/screens/admin/kodisha_homepage.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
+final messengerKey = GlobalKey<ScaffoldMessengerState>();
 Future main() async {
   //debugPaintSizeEnabled = true;
   await dotenv.load(fileName: ".env");
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: messengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Kodisha',
       theme: kodishaTheme,

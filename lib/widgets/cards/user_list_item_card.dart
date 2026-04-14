@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kodisha_flutter/main.dart';
 import 'package:kodisha_flutter/models/user_model.dart';
 import 'package:kodisha_flutter/provider/admin/users_provider.dart';
 import 'package:kodisha_flutter/screens/details/user_detail_screen.dart';
@@ -77,9 +78,9 @@ class UserListItemCard extends ConsumerWidget {
                   _showDeleteDialog(context).then((onValue) {
                     if (onValue) {
                       userNotifierProvider.deleteUser(user.id!);
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text("User Deleted!")));
+                      messengerKey.currentState?.showSnackBar(
+                        SnackBar(content: Text("User Deleted!")),
+                      );
                     }
                   });
                 },
