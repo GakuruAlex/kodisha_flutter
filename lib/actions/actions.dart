@@ -72,3 +72,26 @@ ActionInput buildAction(
       throw UnsupportedError("Unknown form type: $formType");
   }
 }
+
+Future<bool> showDeleteDialog(BuildContext context, String modelName) async {
+  return await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: Text("Delete $modelName"),
+      content: Text("Do you accept ?"),
+      elevation: 24,
+      backgroundColor: Theme.of(context).colorScheme.errorContainer,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: Text("Yes", style: Theme.of(context).textTheme.titleSmall),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text("Cancel", style: Theme.of(context).textTheme.titleSmall),
+        ),
+      ],
+    ),
+  );
+}
