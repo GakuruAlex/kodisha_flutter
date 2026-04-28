@@ -26,24 +26,28 @@ class LandlordService {
     required String token,
     required Map<String, dynamic> data,
   }) async {
-    final options = Options(
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
+    final formData = FormData();
+
+    formData.fields.addAll([
+      MapEntry('estate[name]', data['name']),
+      MapEntry('estate[location]', data['location']),
+    ]);
+
+    final image = data['image'];
+
+    if (image != null) {
+      formData.files.add(
+        MapEntry('estate[image]', await MultipartFile.fromFile(image.path)),
+      );
+    }
+
+    final response = await dio.post(
+      "$landlordUrl/new-estate",
+      data: formData,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    try {
-      final response = await dio.post(
-        "$landlordUrl/new-estate",
-        options: options,
-        data: data,
-      );
-      return response;
-    } on DioException catch (e) {
-      throw "${e.response?.data["error"]}";
-    }
+    return response;
   }
 
   Future<Response> deleteEstate({

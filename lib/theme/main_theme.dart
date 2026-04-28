@@ -33,7 +33,7 @@ final textThemes = GoogleFonts.acmeTextTheme(
     labelSmall: TextStyle(color: Color(0xFF181003), fontSize: 28),
 
     bodyMedium: TextStyle(color: Color(0xFFFFC745), fontSize: 28),
-    bodySmall: TextStyle(color: Color(0xFFFFFFFF), fontSize: 22),
+    bodySmall: TextStyle(color: Color(0xFFFFFFFF), fontSize: 18),
   ),
 );
 

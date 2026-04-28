@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/actions/actions.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
@@ -30,6 +31,7 @@ class DynamicForm extends ConsumerStatefulWidget {
 
 class _DynamicFormState extends ConsumerState<DynamicForm> {
   final _formKey = GlobalKey<FormState>();
+  XFile? _image;
   @override
   Widget build(BuildContext context) {
     if (widget.formType.toLowerCase().contains("edit") &&
@@ -56,20 +58,24 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: widget.fields
-                    .map(
-                      (field) => FormFieldWidget(
-                        fieldType: field.fieldLabel,
-                        formIcon: field.fieldIcon,
-                        formLabel: field.fieldLabel,
-                        controller:
-                            widget.controllers[field.fieldLabel
-                                .replaceAll(" ", "")
-                                .toLowerCase()]!,
-                        type: widget.formType,
-                      ),
-                    )
-                    .toList(),
+                children: widget.fields.map((field) {
+                  final key = field.fieldLabel
+                      .replaceAll(" ", "")
+                      .toLowerCase();
+
+                  return FormFieldWidget(
+                    onImagePicked: (file) {
+                      setState(() {
+                        _image = file;
+                      });
+                    },
+                    fieldType: field.fieldLabel,
+                    formIcon: field.fieldIcon,
+                    formLabel: field.fieldLabel,
+                    controller: widget.controllers[key],
+                    type: widget.formType,
+                  );
+                }).toList(),
               ),
               SizedBox(height: 10),
               SizedBox(
@@ -77,17 +83,20 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
 
                 child: FloatingActionButton(
                   onPressed: () {
-                    runAction(
-                      buildAction(
-                        widget.formType,
-                        widget.controllers,
-                        widget.model,
-                        widget.id,
-                      ),
-                      ref,
-                    );
-                    if (widget.formType.toLowerCase() != "login") {
-                      Navigator.of(context).pop();
+                    if (_formKey.currentState!.validate()) {
+                      runAction(
+                        buildAction(
+                          widget.formType,
+                          widget.controllers,
+                          widget.model,
+                          widget.id,
+                          image: _image,
+                        ),
+                        ref,
+                      );
+                      if (widget.formType.toLowerCase() != "login") {
+                        Navigator.of(context).pop();
+                      }
                     }
                   },
                   child: ListTile(

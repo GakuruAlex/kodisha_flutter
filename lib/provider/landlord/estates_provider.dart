@@ -40,11 +40,12 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     final Estate newEstate = Estate(
       location: estateData["location"],
       name: estateData["name"],
+      //estateImage: estateData["image"],
     );
     try {
       final response = await userService.postNewEstate(
         token: token,
-        data: newEstate.toJson(),
+        data: estateData,
       );
 
       if (response.statusCode == 201) {
@@ -54,6 +55,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
             id: response.data["id"],
             numHouses: response.data["houses_count"],
             vacancy: response.data["has_vacancy"],
+            estateImage: response.data["image"],
             //houses: response.data["houses"],
           ),
         ]);

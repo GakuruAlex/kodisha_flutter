@@ -27,6 +27,7 @@ class NewEstateForm extends StatelessWidget {
             textInputType: TextInputType.text,
             fieldIcon: Icons.place,
           ),
+          DynamicFormField(fieldLabel: "Image", fieldIcon: Icons.image),
         ],
         controllers: controllers,
         buttonIcon: Icons.add,

@@ -9,6 +9,7 @@ class Estate implements FormModel {
     this.numHouses,
     this.vacancy,
     this.houses,
+    this.estateImage,
   });
 
   final String? location;
@@ -18,12 +19,14 @@ class Estate implements FormModel {
   final int? numHouses;
   @override
   final int? id;
+  final String? estateImage;
 
   Estate copywith({
     String? location,
     String? name,
     int? numHouses,
     int? id,
+    String? estateImage,
     bool? vacancy,
     List<House>? houses,
   }) {
@@ -34,6 +37,7 @@ class Estate implements FormModel {
 
     return Estate(
       vacancy: vacancy ?? this.vacancy,
+      estateImage: estateImage ?? this.estateImage,
       location: location ?? this.location,
       name: name ?? this.name,
       id: id ?? this.id,
@@ -54,11 +58,12 @@ class Estate implements FormModel {
       numHouses: estate["houses_count"],
       vacancy: estate["has_vacancy"],
       houses: estateHouses,
+      estateImage: estate["image"],
     );
   }
   Map<String, Map<dynamic, dynamic>> toJson() {
     return {
-      "estate": {"location": location, "name": name},
+      "estate": {"location": location, "name": name, "image": estateImage},
     };
   }
 
