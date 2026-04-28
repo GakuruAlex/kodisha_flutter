@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
@@ -21,9 +22,10 @@ class CreateHouseInput extends ActionInput {
 }
 
 class NewEstateInput extends ActionInput {
-  NewEstateInput({required this.name, required this.location});
+  NewEstateInput({required this.name, required this.location, this.image});
   final String location;
   final String name;
+  final XFile? image;
 }
 
 void runAction(ActionInput action, WidgetRef ref) {
@@ -37,10 +39,11 @@ void runAction(ActionInput action, WidgetRef ref) {
           .addHouse(House(name: houseName));
       ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: estateId);
       break;
-    case NewEstateInput(:String name, :String location):
+    case NewEstateInput(:String name, :String location, :XFile? image):
       ref.read(estatesProvider.notifier).addEstate({
         "location": location,
         "name": name,
+        "image": image,
       });
       break;
   }
@@ -50,8 +53,9 @@ ActionInput buildAction(
   String formType,
   Map<String, TextEditingController> controllers,
   FormModel? model,
-  int? id,
-) {
+  int? id, {
+  XFile? image,
+}) {
   switch (formType.toLowerCase()) {
     case "login":
       return LoginInput(
@@ -67,6 +71,7 @@ ActionInput buildAction(
       return NewEstateInput(
         name: controllers["name"]!.text,
         location: controllers["location"]!.text,
+        image: image,
       );
     default:
       throw UnsupportedError("Unknown form type: $formType");

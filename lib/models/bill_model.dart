@@ -4,6 +4,7 @@ class BillModel extends FormModel {
   BillModel({required this.name, required this.accountNumber, this.id});
 
   final String name;
+  @override
   final int? id;
   final String accountNumber;
 
