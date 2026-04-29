@@ -40,7 +40,6 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     final Estate newEstate = Estate(
       location: estateData["location"],
       name: estateData["name"],
-      //estateImage: estateData["image"],
     );
     try {
       final response = await userService.postNewEstate(
