@@ -5,7 +5,7 @@ class UtilityModel implements FormModel {
 
   final String? name;
   final String? meterNumber;
-  final String? lastReading;
+  final int? lastReading;
   @override
   final int? id;
   @override
@@ -20,4 +20,14 @@ class UtilityModel implements FormModel {
       lastReading: utility["last_reading"],
     );
   }
+  @override
+  String? get imageUrl => "";
+  @override
+  String get subTitle => meterNumber ?? "";
+  @override
+  String get title => name ?? "";
+  @override
+  List<String>? get imagesUrl => [];
+  @override
+  Map<String, String> metaData() => {"last reading": "$lastReading"};
 }

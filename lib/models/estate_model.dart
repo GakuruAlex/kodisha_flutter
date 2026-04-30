@@ -73,4 +73,17 @@ class Estate implements FormModel {
     "location": location,
     "name": name,
   };
+  @override
+  String? get imageUrl => estateImage;
+  @override
+  String get title => name ?? "";
+  @override
+  String get subTitle => location ?? "";
+  @override
+  Map<String, String> metaData() => {
+    "Number of houses": "$numHouses",
+    "Vacancy": vacancy! ? "Available" : "Taken",
+  };
+  @override
+  List<String>? get imagesUrl => [];
 }
