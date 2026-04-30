@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
+import 'package:kodisha_flutter/screens/details/estate_detail.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/estates_items_card.dart';
+import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 
 class EstatesPage extends ConsumerWidget {
   const EstatesPage({super.key});
@@ -25,8 +27,25 @@ class EstatesPage extends ConsumerWidget {
                       crossAxisCount: 1,
                       childAspectRatio: 2.5,
                     ),
-                    itemBuilder: (context, index) =>
-                        EstatesItemsCard(id: data[index].id!),
+                    itemBuilder: (context, index) => GenericCard(
+                      id: data[index].id!,
+                      provider: estateProvider(data[index].id!),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EstateDetail(id: data[index].id!),
+                          ),
+                        );
+                      },
+                      onDelete: (id) {
+                        return ref
+                            .read(estatesProvider.notifier)
+                            .deleteEstate(id: id);
+                      },
+                      modelName: "Estate",
+                    ),
+                    //EstatesItemsCard(id: data[index].id!),
                   ),
                 ),
               ),

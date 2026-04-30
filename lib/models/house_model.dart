@@ -55,4 +55,17 @@ class House implements FormModel {
     "houseType": houseType,
     "utilities": utilities,
   };
+  @override
+  String? get imageUrl => "";
+  @override
+  List<String>? get imagesUrl => images;
+  @override
+  String get title => name ?? "";
+  @override
+  String get subTitle => houseType?.name ?? "";
+  @override
+  Map<String, String> metaData() => {
+    "account number": utilities?[0].meterNumber ?? "",
+    "account name": utilities?[0].name ?? "",
+  };
 }
