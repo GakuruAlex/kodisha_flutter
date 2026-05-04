@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/screens/details/estate_detail.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
-import 'package:kodisha_flutter/widgets/cards/estates_items_card.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 
 class EstatesPage extends ConsumerWidget {

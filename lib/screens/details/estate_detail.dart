@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
+import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 import 'package:kodisha_flutter/widgets/form/house_form.dart';
 
 class EstateDetail extends ConsumerWidget {
@@ -30,34 +31,51 @@ class EstateDetail extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Card(
-                color: estate.vacancy!
-                    ? colorsScheme.primary
-                    : colorsScheme.errorContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [Text("Location:"), Text(estate.location!)],
-                      ),
-                      Row(
-                        children: [
-                          Text("Number of Houses: "),
-                          Text("${estate.numHouses}"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text("Vacancy: "),
-                          Text("${estate.vacancy}"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              // Card(
+              //   color: estate.vacancy!
+              //       ? colorsScheme.primary
+              //       : colorsScheme.errorContainer,
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(8.0),
+              //     child: Column(
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       mainAxisSize: MainAxisSize.min,
+              //       children: [
+              //         Row(
+              //           children: [Text("Location:"), Text(estate.location!)],
+              //         ),
+              //         Row(
+              //           children: [
+              //             Text("Number of Houses: "),
+              //             Text("${estate.numHouses}"),
+              //           ],
+              //         ),
+              //         Row(
+              //           children: [
+              //             Text("Vacancy: "),
+              //             Text("${estate.vacancy}"),
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              GenericCard(
+                id: id,
+                provider: estateProvider(id),
+                onTap: () {
+                  // Navigator.of(context).push(
+                  //   MaterialPageRoute(
+                  //     builder: (context) => EstateDetail(id: data[index].id!),
+                  //   ),
+                  // );
+                },
+                onDelete: (id) {
+                  return ref
+                      .read(estatesProvider.notifier)
+                      .deleteEstate(id: id);
+                },
+                modelName: "Estate",
               ),
               Card(
                 child: Padding(
