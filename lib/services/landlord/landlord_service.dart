@@ -6,7 +6,7 @@ final dio = Dio();
 class LandlordService {
   final String landlordUrl = dotenv.env["LANDLORD_BASE_URL"]!;
 
-  Future<List<dynamic>> getEstates(String token) async {
+  Future<Response> getEstates(String token) async {
     final options = Options(
       method: "GET",
       headers: {
@@ -16,9 +16,9 @@ class LandlordService {
     );
     try {
       final response = await dio.get("$landlordUrl/estates", options: options);
-      return response.data;
+      return response;
     } on DioException catch (e) {
-      throw '$e.response?.data["error]';
+      throw '${e.response?.data["error"]}';
     }
   }
 

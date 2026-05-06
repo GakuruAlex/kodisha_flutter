@@ -23,28 +23,31 @@ class House implements FormModel {
     int? id,
     HouseType? houseType,
     List<UtilityModel>? utilities,
+    List<String>? images,
   }) {
     return House(
       name: name ?? this.name,
       id: id ?? this.id,
       houseType: houseType ?? this.houseType,
       utilities: utilities ?? this.utilities,
+      images: images ?? this.images,
     );
   }
 
   factory House.fromJson(Map<String, dynamic> house) {
-    final List<UtilityModel> utilities = house["utilities"].map(
-      (utitlity) => utitlity.fromJson(),
-    );
+    // final List<UtilityModel> utilities = house["utilities"].map(
+    //   (utitlity) => utitlity.fromJson(),
+    // );
     return House(
       name: house["house_name"],
       id: house["id"],
-      utilities: utilities,
+      //utilities: utilities,
+      images: List<String>.from(house["images"]),
     );
   }
   Map<String, dynamic> toJson() {
     return {
-      "house": {"house_name": name},
+      "house": {"house_name": name, "images": images},
     };
   }
 
