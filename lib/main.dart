@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 //import 'package:flutter/rendering.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,11 +9,21 @@ import 'package:kodisha_flutter/screens/landlord/tenants_page.dart';
 import 'package:kodisha_flutter/screens/admin/kodisha_homepage.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
+import 'package:window_size/window_size.dart';
 
 final messengerKey = GlobalKey<ScaffoldMessengerState>();
 Future main() async {
   //debugPaintSizeEnabled = true;
   await dotenv.load(fileName: ".env");
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isLinux) {
+    const pixel6Size = Size(522, 1080);
+
+    setWindowTitle('Pixel 6 Preview');
+    setWindowMinSize(pixel6Size);
+    setWindowMaxSize(pixel6Size);
+  }
   runApp(ProviderScope(child: const MyApp()));
 }
 
