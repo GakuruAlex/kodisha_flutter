@@ -7,7 +7,7 @@ import 'package:kodisha_flutter/services/landlord/estate_service.dart';
 
 final housesNotifierProvider =
     AsyncNotifierProvider.family<HouseNotifier, List<House>, int>(
-      (estateId) => HouseNotifier(estateId),
+      (estateId) => HouseNotifier(estateId),                                                 
     );
 final estateServiceProvider = Provider((ref) => EstateService());
 
@@ -25,25 +25,29 @@ class HouseNotifier extends AsyncNotifier<List<House>> {
     return currentEstate.houses!.isNotEmpty ? currentEstate.houses! : [];
   }
 
-  void addHouse(House house) async {
-    state = AsyncLoading();
-    final Estate currentEstate = ref.read(estateProvider(estateId))!;
+  void addHouse(Map<String,dynamic> houseData) async {
+  final previous = state.value ?? [];
 
-    final token = ref.watch(loginNotifier).value;
-    final estateService = ref.read(estateServiceProvider);
-    try {
-      final response = await estateService.postHouse(
-        data: house.toJson(),
-        token: token!,
-        estateId: estateId,
-      );
-      //print("Response is: $response");
+  state = const AsyncLoading();
 
-      if (response.statusCode! == 201) {
-        state = AsyncData([...state.value!, House.fromJson(response.data)]);
-      }
-    } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace);
+  final token = ref.read(loginNotifier).value;
+  final estateService = ref.read(estateServiceProvider);
+
+  try {
+    final response = await estateService.postHouse(
+      data: houseData,
+      token: token!,
+      estateId: estateId,
+    );
+
+    if (response.statusCode == 201) {
+      state = AsyncData([
+        ...previous,
+        House.fromJson(response.data),
+      ]);
     }
+  } catch (error, stackTrace) {
+    state = AsyncValue.error(error, stackTrace);
   }
+}
 }

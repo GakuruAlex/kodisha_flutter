@@ -24,8 +24,18 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     state = AsyncLoading();
     try {
       final response = await userService.getEstates(token);
-      //print(response);
-      state = AsyncValue.data(response.map((d) => Estate.fromJson(d)).toList());
+      print(response);
+      if (response.statusCode == 200) {
+        state = AsyncValue.data(
+          response.data.map<Estate>((d) => Estate.fromJson(d)).toList(),
+        );
+        print(AsyncData("STATET: $state"));
+      } else {
+        state = AsyncError(
+          response.data?.error,
+          StackTrace.fromString("Error"),
+        );
+      }
     } catch (error, stack) {
       state = AsyncValue.error(error, stack);
     }
@@ -58,6 +68,8 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
             //houses: response.data["houses"],
           ),
         ]);
+      } else if (response.statusCode == 401) {
+        state = AsyncValue.error(response.data?.error, response.data?.error);
       }
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);

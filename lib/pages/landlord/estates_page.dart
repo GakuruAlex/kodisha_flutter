@@ -52,9 +52,13 @@ class EstatesPage extends ConsumerWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "$error",
-                      style: Theme.of(context).textTheme.titleMedium,
+                    Wrap(
+                      children: [
+                        Text(
+                          "$error  $stack",
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
                     ),
                     ElevatedButton(
                       onPressed: () {

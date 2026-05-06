@@ -60,22 +60,25 @@ class EstateDetail extends ConsumerWidget {
               //     ),
               //   ),
               // ),
-              GenericCard(
-                id: id,
-                provider: estateProvider(id),
-                onTap: () {
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(
-                  //     builder: (context) => EstateDetail(id: data[index].id!),
-                  //   ),
-                  // );
-                },
-                onDelete: (id) {
-                  return ref
-                      .read(estatesProvider.notifier)
-                      .deleteEstate(id: id);
-                },
-                modelName: "Estate",
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * .4,
+                child: GenericCard(
+                  id: id,
+                  provider: estateProvider(id),
+                  onTap: () {
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder: (context) => EstateDetail(id: data[index].id!),
+                    //   ),
+                    // );
+                  },
+                  onDelete: (id) {
+                    return ref
+                        .read(estatesProvider.notifier)
+                        .deleteEstate(id: id);
+                  },
+                  modelName: "Estate",
+                ),
               ),
               Card(
                 child: Padding(
