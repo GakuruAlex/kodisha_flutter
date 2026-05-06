@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
-import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
@@ -16,9 +15,14 @@ class LoginInput extends ActionInput {
 }
 
 class CreateHouseInput extends ActionInput {
-  CreateHouseInput({required this.houseName, required this.estateId});
+  CreateHouseInput({
+    required this.houseName,
+    required this.estateId,
+    required this.images,
+  });
   final String houseName;
   final int estateId;
+  final List<XFile>? images;
 }
 
 class NewEstateInput extends ActionInput {
@@ -33,10 +37,11 @@ void runAction(ActionInput action, WidgetRef ref) {
     case LoginInput(:String email, :String password):
       ref.read(loginNotifier.notifier).loginUser(email, password);
       break;
-    case CreateHouseInput(:String houseName, :int estateId):
-      ref
-          .read(housesNotifierProvider(estateId).notifier)
-          .addHouse(House(name: houseName));
+    case CreateHouseInput(:String houseName, :int estateId, :List<XFile>? images):
+      ref.read(housesNotifierProvider(estateId).notifier).addHouse({
+        "name": houseName,
+        "images": images,
+      });
       ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: estateId);
       break;
     case NewEstateInput(:String name, :String location, :XFile? image):
@@ -55,6 +60,7 @@ ActionInput buildAction(
   FormModel? model,
   int? id, {
   XFile? image,
+  List<XFile>? images,
 }) {
   switch (formType.toLowerCase()) {
     case "login":
@@ -65,6 +71,7 @@ ActionInput buildAction(
     case "create house":
       return CreateHouseInput(
         houseName: controllers["housename"]!.text,
+        images: images,
         estateId: id!,
       );
     case "create estate":

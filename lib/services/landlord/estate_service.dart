@@ -10,23 +10,38 @@ class EstateService {
     required String token,
     required int estateId,
   }) async {
+    final formData = FormData();
+
+    // text fields
+    formData.fields.add(MapEntry('house[house_name]', data['name'] ?? ''));
+
+    // images
+    if (data["images"] != null && data["images"].isNotEmpty) {
+      for (var image in data["images"]) {
+        formData.files.add(
+          MapEntry(
+            'house[images][]',
+            await MultipartFile.fromFile(image.path, filename: image.name),
+          ),
+        );
+      }
+    }
+
     final options = Options(
       method: "POST",
-      headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "Application/json",
-      },
+      headers: {"Authorization": "Bearer $token"},
     );
 
     try {
       final response = await dio.post(
         "$estateUrl/$estateId/houses",
         options: options,
-        data: data,
+        data: formData,
       );
+
       return response;
     } on DioException catch (e) {
-      throw "${e.error}";
+      throw e.response?.data ?? e.message ?? "Upload failed";
     }
   }
 }

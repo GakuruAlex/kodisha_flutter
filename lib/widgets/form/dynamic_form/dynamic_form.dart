@@ -9,6 +9,7 @@ import 'package:kodisha_flutter/widgets/form/form_field.dart';
 class DynamicForm extends ConsumerStatefulWidget {
   const DynamicForm({
     super.key,
+    this.multipleImages,
     required this.formType,
     required this.fields,
     required this.controllers,
@@ -18,6 +19,7 @@ class DynamicForm extends ConsumerStatefulWidget {
     this.id,
   });
   final String formType;
+  final bool? multipleImages;
   final List<DynamicFormField> fields;
   final Map<String, TextEditingController> controllers;
   final IconData buttonIcon;
@@ -32,6 +34,7 @@ class DynamicForm extends ConsumerStatefulWidget {
 class _DynamicFormState extends ConsumerState<DynamicForm> {
   final _formKey = GlobalKey<FormState>();
   XFile? _image;
+  List<XFile>? _images;
   @override
   Widget build(BuildContext context) {
     if (widget.formType.toLowerCase().contains("edit") &&
@@ -64,9 +67,10 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                       .toLowerCase();
 
                   return FormFieldWidget(
-                    onImagePicked: (file) {
+                    onImagePicked: (file, files) {
                       setState(() {
                         _image = file;
+                        _images = files;
                       });
                     },
                     fieldType: field.fieldLabel,
@@ -91,6 +95,7 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                           widget.model,
                           widget.id,
                           image: _image,
+                          images: _images
                         ),
                         ref,
                       );
