@@ -11,24 +11,27 @@ class HouseForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsGeometry.all(12),
-      child: DynamicForm(
-        id: estateId,
-        formType: "Create House",
-        fields: [
-          DynamicFormField(
-            fieldLabel: "House Name",
-            textInputType: TextInputType.text,
-            fieldIcon: Icons.house,
-          ),
-        ],
-        controllers: {"housename": TextEditingController()},
-        buttonIcon: Icons.create,
-        constraints: {
-          "pad": 20,
-          "height": MediaQuery.sizeOf(context).height * .7,
-          "width": MediaQuery.sizeOf(context).width * .8,
-          "tileWidth": MediaQuery.sizeOf(context).width * .4,
-        },
+      child: SingleChildScrollView(
+        child: DynamicForm(
+          id: estateId,
+          formType: "Create House",
+          fields: [
+            DynamicFormField(
+              fieldLabel: "House Name",
+              textInputType: TextInputType.text,
+              fieldIcon: Icons.house,
+            ),
+            DynamicFormField(fieldLabel: "Images", fieldIcon: Icons.image),
+          ],
+          controllers: {"housename": TextEditingController()},
+          buttonIcon: Icons.create,
+          constraints: {
+            "pad": 20,
+            "height": MediaQuery.sizeOf(context).height * .7,
+            "width": MediaQuery.sizeOf(context).width * .8,
+            "tileWidth": MediaQuery.sizeOf(context).width * .4,
+          },
+        ),
       ),
     );
   }

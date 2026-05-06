@@ -15,7 +15,7 @@ class FormFieldWidget extends ConsumerStatefulWidget {
     required this.type,
     this.id,
   });
-  final Function(XFile?)? onImagePicked;
+  final Function(XFile?, List<XFile>?)? onImagePicked;
   final IconData formIcon;
   final int? id;
   final String formLabel;
@@ -36,6 +36,7 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
   }
 
   XFile? _image;
+  List<XFile>? images;
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +48,10 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
     }
 
     Widget inputWidget;
+    List<XFile> pickedImages = [];
+    XFile? picked;
 
-    // 🔹 Decide what goes inside the card
-    if (widget.fieldType.toLowerCase() == "image") {
+    if (widget.fieldType.toLowerCase().contains("image")) {
       inputWidget = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -58,23 +60,42 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
           ElevatedButton(
             onPressed: () async {
               final picker = ImagePicker();
-              final picked = await picker.pickImage(
-                source: ImageSource.gallery,
-              );
+              if (widget.fieldType.toLowerCase() == "images") {
+                pickedImages = await picker.pickMultiImage(
+                  requestFullMetadata: true,
+                );
+              } else {
+                picked = await picker.pickImage(source: ImageSource.gallery);
+              }
+
               if (picked != null) {
                 setState(() {
                   _image = picked;
                 });
-                widget.onImagePicked?.call(picked);
+                widget.onImagePicked?.call(picked, null);
+              } else if (pickedImages.isNotEmpty) {
+                setState(() {
+                  images = pickedImages;
+                });
+                widget.onImagePicked?.call(null, pickedImages);
               }
             },
-            child: const Text(
-              "Pick Image",
+            child: Text(
+              "Pick ${widget.formLabel}",
               style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 16),
             ),
           ),
           const SizedBox(height: 8),
           if (_image != null) Image.file(File(_image!.path), height: 100),
+
+          if (images != null && images!.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: images!.map((img) {
+                return Image.file(File(img.path), height: 100);
+              }).toList(),
+            ),
         ],
       );
     } else {
