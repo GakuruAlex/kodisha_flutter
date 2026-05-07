@@ -49,5 +49,8 @@ class HouseNotifier extends AsyncNotifier<List<House>> {
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
+  } catch (error, stackTrace) {
+    state = AsyncValue.error(error, stackTrace);
   }
+}
 }
