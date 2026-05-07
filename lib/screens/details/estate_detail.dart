@@ -13,7 +13,7 @@ class EstateDetail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final estate = ref.watch(estateProvider(id));
-    final houses = ref.watch(housesNotifierProvider(id));
+    final houses = ref.watch(housesNotifierProvider());
     return Scaffold(
       appBar: AppBar(
         title: Text(

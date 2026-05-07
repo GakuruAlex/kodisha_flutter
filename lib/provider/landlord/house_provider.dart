@@ -6,48 +6,48 @@ import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/estate_service.dart';
 
 final housesNotifierProvider =
-    AsyncNotifierProvider.family<HouseNotifier, List<House>, int>(
-      (estateId) => HouseNotifier(estateId),                                                 
-    );
+    AsyncNotifierProvider.family<HouseNotifier, List<House>, ({int estateId, int houseId})>(
+      (params) => HouseNotifier(params.estateId, params.houseId)  );
 final estateServiceProvider = Provider((ref) => EstateService());
 
+
 class HouseNotifier extends AsyncNotifier<List<House>> {
-  HouseNotifier(this.estateId);
-  int estateId;
+  HouseNotifier(this.estateId, this.houseId);
+  int? estateId;
+  int? houseId;
   @override
   List<House> build() {
-    return getHouses(estateId);
+    return getHouses();
   }
 
-  List<House> getHouses(int estateId) {
-    final Estate currentEstate = ref.read(estateProvider(estateId))!;
+  List<House> getHouses() {
+    final Estate currentEstate = ref.read(estateProvider(estateId!))!;
 
     return currentEstate.houses!.isNotEmpty ? currentEstate.houses! : [];
   }
 
-  void addHouse(Map<String,dynamic> houseData) async {
-  final previous = state.value ?? [];
+  House getHouse() => state.value!.where((house)=> house.id == houseId).first;
 
-  state = const AsyncLoading();
+  void addHouse(Map<String, dynamic> houseData) async {
+    final previous = state.value ?? [];
 
-  final token = ref.read(loginNotifier).value;
-  final estateService = ref.read(estateServiceProvider);
+    state = const AsyncLoading();
 
-  try {
-    final response = await estateService.postHouse(
-      data: houseData,
-      token: token!,
-      estateId: estateId,
-    );
+    final token = ref.read(loginNotifier).value;
+    final estateService = ref.read(estateServiceProvider);
 
-    if (response.statusCode == 201) {
-      state = AsyncData([
-        ...previous,
-        House.fromJson(response.data),
-      ]);
+    try {
+      final response = await estateService.postHouse(
+        data: houseData,
+        token: token!,
+        estateId: estateId!,
+      );
+
+      if (response.statusCode == 201) {
+        state = AsyncData([...previous, House.fromJson(response.data)]);
+      }
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
-  } catch (error, stackTrace) {
-    state = AsyncValue.error(error, stackTrace);
   }
-}
 }
