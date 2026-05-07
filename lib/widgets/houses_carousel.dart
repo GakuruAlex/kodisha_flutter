@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
-import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 
 class HouseCarousel extends StatelessWidget {
