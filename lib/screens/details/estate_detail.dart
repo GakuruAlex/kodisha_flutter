@@ -5,6 +5,7 @@ import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 import 'package:kodisha_flutter/widgets/form/house_form.dart';
+import 'package:kodisha_flutter/widgets/houses_carousel.dart';
 
 class EstateDetail extends ConsumerWidget {
   const EstateDetail({super.key, required this.id});
@@ -13,7 +14,9 @@ class EstateDetail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final estate = ref.watch(estateProvider(id));
-    final houses = ref.watch(housesNotifierProvider());
+    final houses = ref.watch(
+      housesNotifierProvider((estateId: id, houseId: null)),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -24,7 +27,7 @@ class EstateDetail extends ConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
-          width: MediaQuery.of(context).size.width * .99,
+          width: MediaQuery.sizeOf(context).width * .99,
           height: MediaQuery.of(context).size.height * .95,
           decoration: loginContainerDecoration,
           child: Column(
@@ -84,15 +87,17 @@ class EstateDetail extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SizedBox(
-                    height: MediaQuery.of(context).size.height * .4,
+                    height: MediaQuery.of(context).size.height * .43,
+                    width: MediaQuery.sizeOf(context).width,
                     child: houses.when(
                       data: (data) => data.isNotEmpty
-                          ? ListView.builder(
-                              itemCount: data.length,
-                              itemBuilder: (BuildContext context, index) {
-                                return Text("House No: ${data[index].name}");
-                              },
-                            )
+                          // ? ListView.builder(
+                          //     itemCount: data.length,
+                          //     itemBuilder: (BuildContext context, index) {
+                          //       return Text("House No: ${data[index].name}");
+                          //     },
+                          //   )
+                          ? HouseCarousel(id: id)
                           : Text("No Houses yet."),
 
                       error: (error, stackTrace) => Center(

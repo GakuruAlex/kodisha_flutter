@@ -37,8 +37,12 @@ void runAction(ActionInput action, WidgetRef ref) {
     case LoginInput(:String email, :String password):
       ref.read(loginNotifier.notifier).loginUser(email, password);
       break;
-    case CreateHouseInput(:String houseName, :int estateId, :List<XFile>? images):
-      ref.read(housesNotifierProvider(estateId).notifier).addHouse({
+    case CreateHouseInput(
+      :String houseName,
+      :int estateId,
+      :List<XFile>? images,
+    ):
+      ref.read(housesNotifierProvider((estateId: estateId, houseId: null )).notifier).addHouse({
         "name": houseName,
         "images": images,
       });

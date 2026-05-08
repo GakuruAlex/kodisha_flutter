@@ -26,7 +26,11 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final item = ref.watch(provider);
-    if (item == null) return const SizedBox.shrink();
+    if (item == null) {
+      return const SizedBox.expand(
+        child: Card(child: Center(child: CircularProgressIndicator())),
+      );
+    }
     return Card(
       margin: const EdgeInsets.all(8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -39,7 +43,7 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            BuildImage(imageUrl: item.imageUrl),
+            BuildImage(imageUrl: item.imageUrl ?? item.imagesUrl![0]),
             Positioned(
               top: 0,
               right: 0,

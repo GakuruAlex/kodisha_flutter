@@ -59,7 +59,7 @@ class House implements FormModel {
     "utilities": utilities,
   };
   @override
-  String? get imageUrl => "";
+  String? get imageUrl => null;
   @override
   List<String>? get imagesUrl => images;
   @override
