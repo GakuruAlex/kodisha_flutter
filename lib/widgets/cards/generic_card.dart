@@ -16,45 +16,69 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
     required this.onTap,
     required this.onDelete,
     required this.modelName,
+    this.initialData,
   });
+
   final int id;
   final ProviderListenable<T?> provider;
+  final T? initialData;
+
   final VoidCallback onTap;
   final Future<int> Function(int id) onDelete;
   final String modelName;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final item = ref.watch(provider);
+    final watched = ref.watch(provider);
+
+    // fallback to already available object
+    final item = watched ?? initialData;
+
     if (item == null) {
       return const SizedBox.expand(
-        child: Card(child: Center(child: CircularProgressIndicator())),
+        child: Card(
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
       );
     }
+
     return Card(
       margin: const EdgeInsets.all(8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       clipBehavior: Clip.hardEdge,
       elevation: 3,
       child: InkWell(
         onTap: onTap,
         splashColor: Theme.of(context).colorScheme.onPrimary,
-
         child: Stack(
           fit: StackFit.expand,
           children: [
-            BuildImage(imageUrl: item.imageUrl ?? item.imagesUrl![0]),
+            BuildImage(
+              imageUrl: item.imageUrl ?? item.imagesUrl![0],
+            ),
+
             Positioned(
               top: 0,
               right: 0,
               child: DeleteButton(
                 onPressed: () async {
-                  final confirmed = await showDeleteDialog(context, modelName);
+                  final confirmed = await showDeleteDialog(
+                    context,
+                    modelName,
+                  );
+
                   if (confirmed) {
                     final statusCode = await onDelete(item.id!);
+
                     if (statusCode == 200) {
                       messengerKey.currentState?.showSnackBar(
-                        SnackBar(content: Text("$modelName Deleted!")),
+                        SnackBar(
+                          content: Text("$modelName Deleted!"),
+                        ),
                       );
                     }
                   }

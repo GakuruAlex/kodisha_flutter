@@ -24,12 +24,12 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     state = AsyncLoading();
     try {
       final response = await userService.getEstates(token);
-      print(response);
+      //print(response);
       if (response.statusCode == 200) {
         state = AsyncValue.data(
           response.data.map<Estate>((d) => Estate.fromJson(d)).toList(),
         );
-        print(AsyncData("STATET: $state"));
+        //print(AsyncData("STATET: $state"));
       } else {
         state = AsyncError(
           response.data?.error,

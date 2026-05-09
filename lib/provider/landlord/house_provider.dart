@@ -14,13 +14,9 @@ final housesNotifierProvider =
     >((params) => HousesNotifier(params.estateId, params.houseId));
 final estateServiceProvider = Provider((ref) => EstateService());
 final houseValueProvider =
-    Provider.family<House?, ({int estateId, int houseId})>(
-  (ref, params) {
-    return ref.watch(
-      houseNotifierProvider(params),
-    ).value;
-  },
-);
+    Provider.family<House?, ({int estateId, int houseId})>((ref, params) {
+      return ref.watch(houseNotifierProvider(params)).value;
+    });
 final houseNotifierProvider =
     AsyncNotifierProvider.family<
       HouseNotifier,
@@ -54,7 +50,7 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   }
 
   List<House> getHouses() {
-    final Estate currentEstate = ref.read(estateProvider(estateId!))!;
+    final Estate currentEstate = ref.watch(estateProvider(estateId!))!;
 
     return currentEstate.houses!.isNotEmpty ? currentEstate.houses! : [];
   }
@@ -75,15 +71,9 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
         token: token!,
         estateId: estateId!,
       );
-
-      if (response.statusCode == 201) {
-        state = AsyncData([...previous, House.fromJson(response.data)]);
-      }
+      state = AsyncData([...previous, House.fromJson(response.data)]);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }
-  } catch (error, stackTrace) {
-    state = AsyncValue.error(error, stackTrace);
   }
-}
 }
