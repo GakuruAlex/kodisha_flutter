@@ -1,16 +1,58 @@
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/utility_model.dart';
 
-enum HouseType { onebedroom, twobedroom, bedsitter }
+enum HouseType {
+  onebedroom('one_bedroom', 'One Bedroom'),
+  twobedroom('two_bedroom', 'Two Bedroom'),
+  bedsitter('bed_sitter', 'Bed Sitter');
+
+  final String dbValue;
+  final String value;
+  const HouseType(this.dbValue, this.value);
+  static HouseType fromValue(String value) {
+    return HouseType.values.firstWhere((key) => key.dbValue == value);
+  }
+
+  static String toValue(String value) {
+    return HouseType.values
+        .firstWhere((element) => element.value == value)
+        .dbValue;
+  }
+}
+
+enum IsOccupied {
+  occupied(true, 'Is Available'),
+  notoccupied(false, 'Not Available');
+
+  final bool dbValue;
+  final String value;
+  const IsOccupied(this.dbValue, this.value);
+
+  static IsOccupied fromValues(String value) {
+    return IsOccupied.values.firstWhere((o) {
+      return o.value == value;
+    });
+  }
+
+  static bool toValue(String value) {
+    return IsOccupied.values
+        .firstWhere(
+          (element) => element.value.toLowerCase().replaceAll(" ", "") == value,
+        )
+        .dbValue;
+  }
+}
 
 class House implements FormModel {
   const House({
     this.id,
+    this.isOccupied,
     this.name,
     this.images,
     this.houseType,
     this.utilities,
   });
+  final IsOccupied? isOccupied;
   final String? name;
   final List<String>? images;
   final HouseType? houseType;
@@ -24,6 +66,7 @@ class House implements FormModel {
     HouseType? houseType,
     List<UtilityModel>? utilities,
     List<String>? images,
+    IsOccupied? isOccupied,
   }) {
     return House(
       name: name ?? this.name,
@@ -31,6 +74,7 @@ class House implements FormModel {
       houseType: houseType ?? this.houseType,
       utilities: utilities ?? this.utilities,
       images: images ?? this.images,
+      isOccupied: isOccupied ?? this.isOccupied,
     );
   }
 
@@ -41,13 +85,20 @@ class House implements FormModel {
     return House(
       name: house["house_name"],
       id: house["id"],
+      isOccupied: IsOccupied.fromValues(house["is_occupied"]),
+      houseType: HouseType.fromValue(house["house_type"]),
       //utilities: utilities,
       images: List<String>.from(house["images"]),
     );
   }
   Map<String, dynamic> toJson() {
     return {
-      "house": {"house_name": name, "images": images},
+      "house": {
+        "house_name": name,
+        "images": images,
+        "is_occupied": isOccupied,
+        "house_type": houseType,
+      },
     };
   }
 
@@ -65,7 +116,7 @@ class House implements FormModel {
   @override
   String get title => name ?? "";
   @override
-  String get subTitle => houseType?.name ?? "";
+  String get subTitle => houseType?.value ?? "";
   @override
   Map<String, String> metaData() => {
     "account number": utilities?[0].meterNumber ?? "",

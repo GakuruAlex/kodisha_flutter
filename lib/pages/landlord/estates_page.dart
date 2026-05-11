@@ -12,7 +12,7 @@ class EstatesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estates = ref.watch(estatesProvider);
     final content = Center(child: Text("No Estates yet. Add some!"));
-    return estates.value!.isEmpty
+    return estates.value!.isNotEmpty
         ? content
         : Container(
             decoration: loginContainerDecoration,

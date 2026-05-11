@@ -50,7 +50,7 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
     return Padding(
       padding: EdgeInsetsGeometry.all(widget.constraints["pad"]!),
       child: SizedBox(
-        height: widget.constraints["height"],
+        //height: widget.constraints["height"],
         width: widget.constraints["width"],
         child: Form(
           key: _formKey,
@@ -66,6 +66,7 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                       .replaceAll(" ", "")
                       .toLowerCase();
 
+                  // Inside widget.fields.map((field) in DynamicForm
                   return FormFieldWidget(
                     onImagePicked: (file, files) {
                       setState(() {
@@ -78,6 +79,7 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                     formLabel: field.fieldLabel,
                     controller: widget.controllers[key],
                     type: widget.formType,
+                    options: field.options, // Add this line
                   );
                 }).toList(),
               ),
@@ -95,7 +97,7 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                           widget.model,
                           widget.id,
                           image: _image,
-                          images: _images
+                          images: _images,
                         ),
                         ref,
                       );
