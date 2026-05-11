@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
+import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/widgets/form/dynamic_form/dynamic_form.dart';
 
 class HouseForm extends StatelessWidget {
@@ -20,6 +21,18 @@ class HouseForm extends StatelessWidget {
               fieldLabel: "House Name",
               textInputType: TextInputType.text,
               fieldIcon: Icons.house,
+            ),
+            DynamicFormField(
+              fieldLabel: "House Type",
+              fieldIcon: Icons.select_all,
+              options: HouseType.values.map((value) => value.value).toList(),
+            ),
+            DynamicFormField(
+              fieldLabel: "Is Occupied",
+              fieldIcon: Icons.toggle_on,
+              options: IsOccupied.values
+                  .map((element) => element.value)
+                  .toList(),
             ),
             DynamicFormField(fieldLabel: "Images", fieldIcon: Icons.image),
           ],

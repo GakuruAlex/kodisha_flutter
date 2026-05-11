@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
+import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
@@ -19,10 +20,14 @@ class CreateHouseInput extends ActionInput {
     required this.houseName,
     required this.estateId,
     required this.images,
+    required this.houseType,
+    required this.isAvailable,
   });
   final String houseName;
+  final IsOccupied isAvailable;
   final int estateId;
   final List<XFile>? images;
+  final HouseType houseType;
 }
 
 class NewEstateInput extends ActionInput {
@@ -41,11 +46,21 @@ void runAction(ActionInput action, WidgetRef ref) {
       :String houseName,
       :int estateId,
       :List<XFile>? images,
+      :IsOccupied isAvailable,
+      :HouseType houseType
     ):
-      ref.read(housesNotifierProvider((estateId: estateId, houseId: null )).notifier).addHouse({
-        "name": houseName,
-        "images": images,
-      });
+      ref
+          .read(
+            housesNotifierProvider((
+              estateId: estateId,
+              houseId: null,
+            )).notifier,
+          )
+          .addHouse({
+            "name": houseName,
+           "images": images,
+           "house_type": houseType.dbValue, 
+           "is_occupied":  isAvailable.dbValue});
       ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: estateId);
       break;
     case NewEstateInput(:String name, :String location, :XFile? image):
@@ -75,8 +90,10 @@ ActionInput buildAction(
     case "create house":
       return CreateHouseInput(
         houseName: controllers["housename"]!.text,
+        isAvailable: IsOccupied.fromValues(controllers["isoccupied"]!.text) ,
         images: images,
         estateId: id!,
+        houseType:HouseType.fromValue(controllers["housetype"]!.text)
       );
     case "create estate":
       return NewEstateInput(

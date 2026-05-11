@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
+import 'package:kodisha_flutter/screens/form/house_create.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 import 'package:kodisha_flutter/widgets/form/house_form.dart';
@@ -117,9 +118,8 @@ class EstateDetail extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (BuildContext context) => HouseForm(estateId: estate.id!),
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (ctx) => HouseFormPage(estateId: id)),
           );
         },
         label: Text(

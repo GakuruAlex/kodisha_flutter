@@ -1,8 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/provider/admin/users_provider.dart';
+import 'inputs/dropdown_input.dart';
+import 'inputs/image_input.dart';
 
 class FormFieldWidget extends ConsumerStatefulWidget {
   const FormFieldWidget({
@@ -14,7 +15,9 @@ class FormFieldWidget extends ConsumerStatefulWidget {
     this.controller,
     required this.type,
     this.id,
+    this.options,
   });
+
   final Function(XFile?, List<XFile>?)? onImagePicked;
   final IconData formIcon;
   final int? id;
@@ -22,96 +25,55 @@ class FormFieldWidget extends ConsumerStatefulWidget {
   final String fieldType;
   final TextEditingController? controller;
   final String type;
+  final List<String>? options;
 
   @override
   ConsumerState<FormFieldWidget> createState() => _FormFieldWidgetState();
 }
 
 class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
-  String? formValidator(String? label) {
-    if (label == null || label.isEmpty) {
-      return "${widget.formLabel} is required";
-    }
-    return null;
-  }
-
-  XFile? _image;
-  List<XFile>? images;
-
   @override
   Widget build(BuildContext context) {
-    if (widget.type == "Edit") {
+    // Handle Edit Logic
+    if (widget.type == "Edit" && widget.id != null) {
       final user = ref.watch(userDetailProvider(widget.id!));
-      widget.controller!.text = user!.toJson([
-        widget.fieldType,
-      ])["user"]![widget.fieldType];
+      if (user != null) {
+        widget.controller?.text = user.toJson([widget.fieldType])["user"]![widget.fieldType] ?? "";
+      }
     }
 
     Widget inputWidget;
-    List<XFile> pickedImages = [];
-    XFile? picked;
 
+    // Determine which widget to render
     if (widget.fieldType.toLowerCase().contains("image")) {
-      inputWidget = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(widget.formLabel),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            onPressed: () async {
-              final picker = ImagePicker();
-              if (widget.fieldType.toLowerCase() == "images") {
-                pickedImages = await picker.pickMultiImage(
-                  requestFullMetadata: true,
-                );
-              } else {
-                picked = await picker.pickImage(source: ImageSource.gallery);
-              }
-
-              if (picked != null) {
-                setState(() {
-                  _image = picked;
-                });
-                widget.onImagePicked?.call(picked, null);
-              } else if (pickedImages.isNotEmpty) {
-                setState(() {
-                  images = pickedImages;
-                });
-                widget.onImagePicked?.call(null, pickedImages);
-              }
-            },
-            child: Text(
-              "Pick ${widget.formLabel}",
-              style: TextStyle(color: Color(0xFFFFFFFF), fontSize: 16),
-            ),
-          ),
-          const SizedBox(height: 8),
-          if (_image != null) Image.file(File(_image!.path), height: 100),
-
-          if (images != null && images!.isNotEmpty)
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: images!.map((img) {
-                return Image.file(File(img.path), height: 100);
-              }).toList(),
-            ),
-        ],
+      inputWidget = ImageInput(
+        label: widget.formLabel,
+        isMulti: widget.fieldType.toLowerCase() == "images",
+        onImagePicked: widget.onImagePicked ?? (f, fs) {},
+      );
+    } else if (widget.options != null && widget.options!.isNotEmpty) {
+      inputWidget = DropdownInput(
+        label: widget.formLabel,
+        options: widget.options!,
+        controller: widget.controller,
+        validator: (val) => (val == null || val.isEmpty) ? "${widget.formLabel} is required" : null,
       );
     } else {
       inputWidget = TextFormField(
-        cursorColor: Theme.of(context).colorScheme.inversePrimary,
         controller: widget.controller,
         obscureText: widget.fieldType.toLowerCase() == 'password',
-        validator: (value) => formValidator(value),
-        decoration: InputDecoration(label: Text(widget.formLabel)),
+        decoration: InputDecoration(label: Text(widget.formLabel), border: InputBorder.none),
+        validator: (val) => (val == null || val.isEmpty) ? "${widget.formLabel} is required" : null,
       );
     }
 
     return Card(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-        child: ListTile(leading: Icon(widget.formIcon), title: inputWidget),
+      child: ListTile(
+        leading: Icon(widget.formIcon),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: inputWidget,
+        ),
       ),
     );
   }
