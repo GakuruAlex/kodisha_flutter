@@ -6,17 +6,35 @@ enum HouseType {
   twobedroom('two_bedroom', 'Two Bedroom'),
   bedsitter('bed_sitter', 'Bed Sitter');
 
-  final String dbValue;
-  final String value;
+  final String dbValue; // What the database wants ('one_bedroom')
+  final String value; // What the user sees/controller holds ('One Bedroom')
+
   const HouseType(this.dbValue, this.value);
-  static HouseType fromValue(String value) {
-    return HouseType.values.firstWhere((key) => key.dbValue == value);
+
+  // 1. Convert DB String back to Enum (For loading from API)
+  static HouseType fromDbValue(String? dbValue) {
+    return HouseType.values.firstWhere(
+      (key) => key.dbValue == dbValue,
+      orElse: () => HouseType.bedsitter, // Safe default
+    );
   }
 
-  static String toValue(String value) {
+  // 2. Convert Controller String to DB String (For saving to API)
+  static String toDbValue(String? uiValue) {
     return HouseType.values
-        .firstWhere((element) => element.value == value)
+        .firstWhere(
+          (element) => element.value == uiValue,
+          orElse: () => HouseType.bedsitter,
+        )
         .dbValue;
+  }
+
+  // 3. Convert Controller String to Enum Object (For creating the House model)
+  static HouseType fromUiValue(String? uiValue) {
+    return HouseType.values.firstWhere(
+      (element) => element.value == uiValue,
+      orElse: () => HouseType.bedsitter,
+    );
   }
 }
 
@@ -28,16 +46,20 @@ enum IsOccupied {
   final String value;
   const IsOccupied(this.dbValue, this.value);
 
-  static IsOccupied fromValues(String value) {
-    return IsOccupied.values.firstWhere((o) {
-      return o.value == value;
-    });
+  // Convert DB bool back to Enum (used when loading from API)
+  static IsOccupied fromValues(bool? value) {
+    return IsOccupied.values.firstWhere(
+      (o) => o.dbValue == (value ?? false),
+      orElse: () => IsOccupied.notoccupied,
+    );
   }
 
-  static bool toValue(String value) {
+  // Convert Controller String to DB bool (used when saving)
+  static bool toValue(String? text) {
     return IsOccupied.values
         .firstWhere(
-          (element) => element.value.toLowerCase().replaceAll(" ", "") == value,
+          (element) => element.value == text,
+          orElse: () => IsOccupied.notoccupied, // Default to false if no match
         )
         .dbValue;
   }
@@ -86,7 +108,7 @@ class House implements FormModel {
       name: house["house_name"],
       id: house["id"],
       isOccupied: IsOccupied.fromValues(house["is_occupied"]),
-      houseType: HouseType.fromValue(house["house_type"]),
+      houseType: HouseType.fromDbValue(house["house_type"]),
       //utilities: utilities,
       images: List<String>.from(house["images"]),
     );
@@ -119,6 +141,8 @@ class House implements FormModel {
   String get subTitle => houseType?.value ?? "";
   @override
   Map<String, String> metaData() => {
+    "is available": isOccupied!.value,
+    "house type": houseType!.value,
     "account number": utilities?[0].meterNumber ?? "",
     "account name": utilities?[0].name ?? "",
   };

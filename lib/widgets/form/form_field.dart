@@ -34,17 +34,44 @@ class FormFieldWidget extends ConsumerStatefulWidget {
 class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
   @override
   Widget build(BuildContext context) {
-    // Handle Edit Logic
+    // Logic for Edit mode...
     if (widget.type == "Edit" && widget.id != null) {
       final user = ref.watch(userDetailProvider(widget.id!));
-      if (user != null) {
-        widget.controller?.text = user.toJson([widget.fieldType])["user"]![widget.fieldType] ?? "";
+      if (user != null && widget.controller?.text.isEmpty == true) {
+        widget.controller?.text =
+            user.toJson([widget.fieldType])["user"]![widget.fieldType] ?? "";
       }
     }
 
+    // Define a consistent decoration style for all inputs
+    final inputDecoration = InputDecoration(
+      labelText: widget.formLabel,
+      prefixIcon: Icon(
+        widget.formIcon,
+      ), // Moved icon from ListTile to the decoration
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 2,
+        ),
+      ),
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.05),
+    );
+
     Widget inputWidget;
 
-    // Determine which widget to render
     if (widget.fieldType.toLowerCase().contains("image")) {
       inputWidget = ImageInput(
         label: widget.formLabel,
@@ -56,24 +83,26 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
         label: widget.formLabel,
         options: widget.options!,
         controller: widget.controller,
-        validator: (val) => (val == null || val.isEmpty) ? "${widget.formLabel} is required" : null,
+        // Pass the decoration if your DropdownInput supports it,
+        // otherwise, wrap DropdownInput in an InputDecorator
       );
     } else {
       inputWidget = TextFormField(
         controller: widget.controller,
         obscureText: widget.fieldType.toLowerCase() == 'password',
-        decoration: InputDecoration(label: Text(widget.formLabel), border: InputBorder.none),
-        validator: (val) => (val == null || val.isEmpty) ? "${widget.formLabel} is required" : null,
+        decoration: inputDecoration, // Applied the bordered decoration here
+        validator: (val) => (val == null || val.isEmpty)
+            ? "${widget.formLabel} is required"
+            : null,
       );
     }
 
-    return Card(
-      child: ListTile(
-        leading: Icon(widget.formIcon),
-        title: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: inputWidget,
-        ),
+    // Removed the ListTile/Card wrap for a cleaner "Bordered Field" look
+    return Material(
+      type: MaterialType.transparency,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
+        child: inputWidget,
       ),
     );
   }

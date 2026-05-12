@@ -47,7 +47,7 @@ void runAction(ActionInput action, WidgetRef ref) {
       :int estateId,
       :List<XFile>? images,
       :IsOccupied isAvailable,
-      :HouseType houseType
+      :HouseType houseType,
     ):
       ref
           .read(
@@ -58,10 +58,10 @@ void runAction(ActionInput action, WidgetRef ref) {
           )
           .addHouse({
             "name": houseName,
-           "images": images,
-           "house_type": houseType.dbValue, 
-           "is_occupied":  isAvailable.dbValue});
-      ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: estateId);
+            "images": images,
+            "house_type": houseType.dbValue,
+            "is_occupied": isAvailable.dbValue,
+          });
       break;
     case NewEstateInput(:String name, :String location, :XFile? image):
       ref.read(estatesProvider.notifier).addEstate({
@@ -90,10 +90,13 @@ ActionInput buildAction(
     case "create house":
       return CreateHouseInput(
         houseName: controllers["housename"]!.text,
-        isAvailable: IsOccupied.fromValues(controllers["isoccupied"]!.text) ,
+        // Use the helper that returns the Enum object directly
+        isAvailable: IsOccupied.fromValues(
+          IsOccupied.toValue(controllers["isoccupied"]!.text),
+        ),
         images: images,
         estateId: id!,
-        houseType:HouseType.fromValue(controllers["housetype"]!.text)
+        houseType: HouseType.fromUiValue(controllers["housetype"]!.text),
       );
     case "create estate":
       return NewEstateInput(

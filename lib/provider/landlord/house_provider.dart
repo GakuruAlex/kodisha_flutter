@@ -56,24 +56,35 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   }
 
   House getHouse() => state.value!.where((house) => house.id == houseId).first;
-
-  void addHouse(Map<String, dynamic> houseData) async {
-    final previous = state.value ?? [];
-
+  Future<void> addHouse(Map<String, dynamic> houseData) async {
+    // 1. Optional: Set state to loading if you want a spinner
     state = const AsyncLoading();
-
-    final token = ref.read(loginNotifier).value;
     final estateService = ref.read(estateServiceProvider);
+    final token = ref.read(loginNotifier).value;
+    //final previous = state.value ?? [];
 
     try {
       final response = await estateService.postHouse(
-        data: houseData,
         token: token!,
+        data: houseData,
         estateId: estateId!,
       );
-      state = AsyncData([...previous, House.fromJson(response.data)]);
-    } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace);
+
+      if (response.statusCode == 201) {
+        // 2. Update the parent estate count
+        ref
+            .read(estatesProvider.notifier)
+            .updateEstateHousesNumber(id: estateId!);
+
+        // 3. REFRESH THE DATA
+        // This forces the provider to re-run its build() method and fetch the latest list
+        ref.invalidateSelf();
+
+        // 4. Wait for the refresh to complete before the UI thinks we're "done"
+        await future;
+      }
+    } catch (e, st) {
+      state = AsyncError(e, st);
     }
   }
 }

@@ -12,7 +12,7 @@ class EstatesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estates = ref.watch(estatesProvider);
     final content = Center(child: Text("No Estates yet. Add some!"));
-    return estates.value!.isNotEmpty
+    return estates.value!.isEmpty
         ? content
         : Container(
             decoration: loginContainerDecoration,
@@ -48,28 +48,68 @@ class EstatesPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              error: (error, stack) => Center(
+              error: (error, stack) => Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Wrap(
+                    Row(
                       children: [
+                        Icon(
+                          Icons.bug_report,
+                          color: Colors.red[400],
+                          size: 40,
+                        ),
+                        const SizedBox(width: 10),
                         Text(
-                          "$error  $stack",
-                          style: Theme.of(context).textTheme.titleMedium,
+                          "Error Details",
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                       ],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        ref.invalidate(estatesProvider);
-                      },
-                      child: SizedBox(
-                        width: MediaQuery.sizeOf(context).width * .4,
-                        child: ListTile(
-                          leading: Icon(Icons.refresh_outlined),
-                          title: Text("Refresh"),
+
+                    const Divider(),
+
+                    // Expanded ensures the scroll area takes up the available middle space
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        child: SingleChildScrollView(
+                          child: Text(
+                            "$error\n\n$stack",
+                            style: TextStyle(
+                              fontFamily:
+                                  'monospace', // Makes stack traces much easier to read
+                              fontSize: 12,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Fixed button at the bottom
+                    ElevatedButton.icon(
+                      onPressed: () => ref.invalidate(estatesProvider),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(
+                        "Try Again",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(200, 50),
                       ),
                     ),
                   ],
