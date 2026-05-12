@@ -40,7 +40,7 @@ class HouseForm extends StatelessWidget {
           buttonIcon: Icons.create,
           constraints: {
             "pad": 20,
-            "height": MediaQuery.sizeOf(context).height * .7,
+            //"height": MediaQuery.sizeOf(context).height * .7,
             "width": MediaQuery.sizeOf(context).width * .8,
             "tileWidth": MediaQuery.sizeOf(context).width * .4,
           },

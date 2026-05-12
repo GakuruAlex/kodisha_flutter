@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/widgets/form/dynamic_form/dynamic_form.dart';
 
-class NewEstateForm extends StatelessWidget {
-  NewEstateForm({super.key});
+class NewEstate extends StatelessWidget {
+  NewEstate({super.key});
 
   final controllers = {
     "location": TextEditingController(),

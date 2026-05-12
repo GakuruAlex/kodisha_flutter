@@ -5,8 +5,8 @@ import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/screens/form/house_create.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
-import 'package:kodisha_flutter/widgets/form/house_form.dart';
 import 'package:kodisha_flutter/widgets/carousel/houses_carousel.dart';
+import 'package:kodisha_flutter/widgets/navigation/top_nav_bar.dart';
 
 class EstateDetail extends ConsumerWidget {
   const EstateDetail({super.key, required this.id});
@@ -19,12 +19,7 @@ class EstateDetail extends ConsumerWidget {
       housesNotifierProvider((estateId: id, houseId: null)),
     );
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          estate!.name!,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
+      appBar: TopNavBar(title: estate!.name!, isHome: false),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(

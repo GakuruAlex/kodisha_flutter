@@ -17,26 +17,40 @@ class DropdownInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      initialValue: (controller != null && options.contains(controller!.text)) 
-          ? controller!.text 
+      initialValue: (controller != null && options.contains(controller!.text))
+          ? controller!.text
           : null,
       isExpanded: true,
       icon: const Icon(Icons.arrow_drop_down_circle_outlined, size: 20),
-      dropdownColor: Theme.of(context).cardColor,
+      dropdownColor: Theme.of(context).colorScheme.secondary,
       borderRadius: BorderRadius.circular(12),
       style: TextStyle(
         color: Theme.of(context).textTheme.bodyLarge?.color,
         fontSize: 16,
       ),
       decoration: InputDecoration(
-        label: Text(label),
+        label: Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
         border: InputBorder.none,
         contentPadding: EdgeInsets.zero,
       ),
-      items: options.map((value) => DropdownMenuItem(
-        value: value, 
-        child: Text(value)
-      )).toList(),
+      items: options
+          .map(
+            (value) => DropdownMenuItem(
+              value: value,
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          )
+          .toList(),
       onChanged: (val) => controller?.text = val ?? "",
       validator: validator,
     );

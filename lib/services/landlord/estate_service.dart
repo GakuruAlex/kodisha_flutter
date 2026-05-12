@@ -13,7 +13,19 @@ class EstateService {
     final formData = FormData();
 
     // text fields
-    formData.fields.add(MapEntry('house[house_name]', data['name'] ?? ''));
+    // Ensure everything added to .fields is a .toString()
+    formData.fields.add(
+      MapEntry('house[house_name]', data['name']?.toString() ?? ''),
+    );
+    formData.fields.add(
+      MapEntry('house[house_type]', data['house_type']?.toString() ?? ''),
+    );
+    formData.fields.add(
+      MapEntry(
+        'house[is_occupied]',
+        data['is_occupied']?.toString() ?? 'false',
+      ),
+    );
 
     // images
     if (data["images"] != null && data["images"].isNotEmpty) {

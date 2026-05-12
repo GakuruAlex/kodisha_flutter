@@ -6,45 +6,47 @@ import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 
 class TopNavBar extends ConsumerWidget implements PreferredSizeWidget {
-  const TopNavBar({super.key, required this.title});
+  const TopNavBar({super.key, required this.title, this.isHome = false});
   final String title;
+  final bool isHome;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      child: AppBar(
-        title: Text(title, style: Theme.of(context).textTheme.labelSmall),
-        leading: Icon(
-          Icons.home,
-          size: 32,
-          color: Theme.of(context).colorScheme.onSecondary,
+    return AppBar(
+      // 1. Force the background to be visible against the body gradient
+      backgroundColor: colorsScheme.primary,
+      elevation: 4, // Add a slight shadow to separate it from the body
+      // 2. Ensure the title stands out
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: Colors.white, // Explicitly white for visibility
         ),
-        actions: [
-          SizedBox(
-            width: 150,
-            child: ListTile(
-              tileColor: colorsScheme.errorContainer,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(8),
-              ),
-              leading: Icon(Icons.logout),
-              title: Text(
-                "Logout",
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              onTap: () {
-                ref.invalidate(estateProvider);
-                ref.invalidate(estateProvider);
-                ref.invalidate(roleProvider);
-
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ),
-        ],
       ),
+      centerTitle: true,
+
+      // 3. Leading Icon
+      leading: isHome
+          ? Icon(Icons.house, color: colorsScheme.onPrimary)
+          : IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+
+      actions: [
+        if (isHome)
+          IconButton(
+            icon: const Icon(Icons.logout),
+            color: colorsScheme.error, // Your red color (0xFFDD0404)
+            onPressed: () {
+              ref.invalidate(estateProvider);
+              ref.invalidate(roleProvider);
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const Login()),
+              );
+            },
+          ),
+      ],
     );
   }
 
