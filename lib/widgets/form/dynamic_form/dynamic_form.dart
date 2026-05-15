@@ -18,7 +18,7 @@ class DynamicForm extends ConsumerStatefulWidget {
     this.model,
     this.id,
     this.isNested = false,
-    this.parentKeyPrefix = "", // Track deeply nested namespaces
+    this.parentKeyPrefix = "",
   });
 
   final String formType;
@@ -41,24 +41,28 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
   XFile? _image;
   List<XFile>? _images;
 
-  // Track the selected dropdown values locally to drive conditional visibility
   final Map<String, String?> _selectedDropdownValues = {};
 
   @override
   void initState() {
     super.initState();
-    // Initialize dropdown states if they already have values in controllers
     _syncControllersToDropdownState();
   }
 
+  // Standardized key generator to use across the widget
+  String _generateKey(String prefix, String label) {
+    final sanitizedLabel = label.replaceAll(" ", "").toLowerCase();
+    return "${prefix}_$sanitizedLabel";
+  }
+
   void _syncControllersToDropdownState() {
+    final currentPrefix = widget.parentKeyPrefix.isEmpty
+        ? widget.formType.replaceAll(" ", "").toLowerCase()
+        : widget.parentKeyPrefix;
+
     for (var field in widget.fields) {
       if (field.options != null && field.options!.isNotEmpty) {
-        final currentPrefix = widget.parentKeyPrefix.isEmpty
-            ? widget.formType.replaceAll(" ", "").toLowerCase()
-            : widget.parentKeyPrefix;
-        final key =
-            "${currentPrefix}_${field.fieldLabel.replaceAll(" ", "").toLowerCase()}";
+        final key = _generateKey(currentPrefix, field.fieldLabel);
 
         if (widget.controllers.containsKey(key) &&
             widget.controllers[key]!.text.isNotEmpty) {
@@ -71,9 +75,11 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hashSubFields = widget.fields.any(
-      (f) => f.subFields != null && f.subFields!.isNotEmpty,
-    );
+    final String currentPrefix = widget.parentKeyPrefix.isEmpty
+        ? widget.formType.replaceAll(" ", "").toLowerCase()
+        : widget.parentKeyPrefix;
+
+    // Handle Edit Mode values
     if (widget.formType.toLowerCase().contains("edit") &&
         widget.model != null) {
       final values = widget.model!.toFormValues();
@@ -84,20 +90,14 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
       });
     }
 
-    final String currentPrefix = widget.parentKeyPrefix.isEmpty
-        ? widget.formType.replaceAll(" ", "").toLowerCase()
-        : widget.parentKeyPrefix;
-
     final fieldsLayout = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: widget.fields.map((field) {
-        final sanitizedLabel = field.fieldLabel
-            .replaceAll(" ", "")
-            .toLowerCase();
-        final key = (hashSubFields || widget.isNested)
-            ? "${currentPrefix}_$sanitizedLabel"
-            : sanitizedLabel;
+        // --- KEY GENERATION FIX ---
+        // Removed the conditional check. Every field now gets a prefixed key.
+        final key = _generateKey(currentPrefix, field.fieldLabel);
+
         if (field.subFields != null && field.subFields!.isNotEmpty) {
           return Padding(
             padding: const EdgeInsets.only(top: 16.0),
@@ -116,20 +116,15 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                   controllers: widget.controllers,
                   buttonIcon: widget.buttonIcon,
                   constraints: widget.constraints,
-                  parentKeyPrefix: key, // Pass forward down the prefix chain
+                  parentKeyPrefix: key,
                 ),
               ],
             ),
           );
         }
 
-        // --- CONDITIONAL VISIBILITY LAYER (THE UTILITY TRICK) ---
-        // If this field is a child field of a dropdown selector (like checking if Meter No/Reading is relevant)
-        // We look up the parent container's conditional visibility status.
         bool shouldHideField = false;
-
         if (widget.isNested) {
-          // If the sibling selector has options but no selection has been made, hide secondary structural inputs
           final masterDropdownField = widget.fields.firstWhere(
             (f) => f.options != null && f.options!.isNotEmpty,
             orElse: () => field,
@@ -144,7 +139,6 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
           }
         }
 
-        // Animated shrink away layout if conditional rules flag concealment
         return AnimatedSize(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
@@ -163,12 +157,10 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                   controller: widget.controllers[key],
                   type: widget.formType,
                   options: field.options,
-                  // Catch selection changes directly on fields containing options to toggle UI branches
                   onChanged: (newValue) {
                     if (field.options != null && field.options!.isNotEmpty) {
                       setState(() {
                         _selectedDropdownValues[field.fieldLabel] = newValue;
-                        // Synchronize immediately to controller map
                         widget.controllers[key]?.text = newValue ?? "";
                       });
                     }
@@ -178,14 +170,13 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
       }).toList(),
     );
 
-    if (widget.isNested) {
-      return fieldsLayout;
-    }
+    if (widget.isNested) return fieldsLayout;
 
     return Padding(
-      padding: EdgeInsets.all(widget.constraints["pad"]!),
+      padding: EdgeInsets.all(widget.constraints["pad"] ?? 16.0),
       child: SizedBox(
-        width: widget.constraints["width"],
+        // Safety check for 'Width' vs 'width'
+        width: widget.constraints["width"] ?? widget.constraints["Width"],
         child: Form(
           key: _formKey,
           child: Column(

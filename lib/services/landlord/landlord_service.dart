@@ -8,17 +8,15 @@ class LandlordService {
 
   Future<Response> getEstates(String token) async {
     final options = Options(
-      method: "GET",
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
     );
     try {
-      final response = await dio.get("$landlordUrl/estates", options: options);
-      return response;
+      return await dio.get("$landlordUrl/estates", options: options);
     } on DioException catch (e) {
-      throw '${e.response?.data["error"]}';
+      throw e.response?.data["error"] ?? e.message ?? "Failed to fetch estates";
     }
   }
 
@@ -27,27 +25,36 @@ class LandlordService {
     required Map<String, dynamic> data,
   }) async {
     final formData = FormData();
+    //print("ESTATE DATA: $data");
+    // Check if data is already wrapped in 'estate' from runAction
+    final estateData = data.containsKey('estate') ? data['estate'] : data;
+    //print("ESTATE DATA: $estateData");
 
+    // text fields - using Rails 'estate[field]' naming convention
     formData.fields.addAll([
-      MapEntry('estate[name]', data['name']),
-      MapEntry('estate[location]', data['location']),
+      MapEntry('estate[name]', estateData['name']?.toString() ?? ''),
+      MapEntry('estate[location]', estateData['location']?.toString() ?? ''),
     ]);
 
-    final image = data['image'];
-
+    final image = estateData['image'];
     if (image != null) {
       formData.files.add(
-        MapEntry('estate[image]', await MultipartFile.fromFile(image.path)),
+        MapEntry(
+          'estate[image]',
+          await MultipartFile.fromFile(image.path, filename: image.name),
+        ),
       );
     }
 
-    final response = await dio.post(
-      "$landlordUrl/new-estate",
-      data: formData,
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-
-    return response;
+    try {
+      return await dio.post(
+        "$landlordUrl/new-estate",
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+    } on DioException catch (e) {
+      throw e.response?.data["error"] ?? "Failed to create estate";
+    }
   }
 
   Future<Response> deleteEstate({
@@ -55,7 +62,6 @@ class LandlordService {
     required int estateID,
   }) async {
     final options = Options(
-      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
@@ -63,13 +69,12 @@ class LandlordService {
     );
 
     try {
-      final response = dio.delete(
+      return await dio.delete(
         "$landlordUrl/estates/$estateID",
         options: options,
       );
-      return response;
-    } on DioException catch (error) {
-      throw "${error.response?.data}";
+    } on DioException catch (e) {
+      throw e.response?.data["error"] ?? "Delete failed";
     }
   }
 }

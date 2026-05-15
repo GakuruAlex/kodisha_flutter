@@ -107,12 +107,6 @@ ActionInput buildAction(
   XFile? image,
   List<XFile>? images,
 }) {
-  // Helper to sanitize keys so they match DynamicForm's output
-  String sanitize(String type, String label) {
-    return "${type.replaceAll(" ", "").toLowerCase()}_${label.replaceAll(" ", "").toLowerCase()}";
-  }
-
-
   switch (formType.toLowerCase()) {
     case "login":
       // Login usually doesn't have a prefix based on our previous fix
@@ -154,10 +148,14 @@ ActionInput buildAction(
         utilities: parsedUtilities,
       );
     case "create estate":
-      final type = "create estate";
+      // Explicitly matching the pattern: formtype_fieldname
+      //print("Controllers in buildaction create estate: $controllers");
+      final nameValue = controllers["createestate_name"]?.text ?? "";
+      final locationValue = controllers["createestate_location"]?.text ?? "";
+
       return NewEstateInput(
-        name: controllers[sanitize(type, "Name")]?.text ?? "",
-        location: controllers[sanitize(type, "Location")]?.text ?? "",
+        name: nameValue,
+        location: locationValue,
         image: image,
       );
 
