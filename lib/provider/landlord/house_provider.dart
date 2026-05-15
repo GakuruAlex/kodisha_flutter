@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/models/estate_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
+import 'package:kodisha_flutter/models/utility_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/estate_service.dart';
+import 'package:kodisha_flutter/services/landlord/house_service.dart';
 
 final housesNotifierProvider =
     AsyncNotifierProvider.family<
@@ -13,6 +14,7 @@ final housesNotifierProvider =
       ({int? estateId, int? houseId})
     >((params) => HousesNotifier(params.estateId, params.houseId));
 final estateServiceProvider = Provider((ref) => EstateService());
+final housesServiceProvider = Provider((ref) => HouseService());
 final houseValueProvider =
     Provider.family<House?, ({int estateId, int houseId})>((ref, params) {
       return ref.watch(houseNotifierProvider(params)).value;
@@ -29,14 +31,30 @@ class HouseNotifier extends AsyncNotifier<House> {
   final int houseId;
   final int estateId;
   @override
-  FutureOr<House> build() {
-    return getHouse();
+  FutureOr<House> build() async {
+    await getHouse();
+    return state.value!;
   }
 
-  House getHouse() {
-    final Estate houseEstate = ref.read(estateProvider(estateId))!;
+  Future<void> getHouse() async {
+    final housesServices = ref.read(housesServiceProvider);
+    final token = ref.watch(loginNotifier).value!;
 
-    return houseEstate.houses!.where((house) => house.id == houseId).first;
+    state = const AsyncLoading();
+
+    try {
+      final response = await housesServices.getHouse(token, estateId, houseId);
+      if (response.statusCode == 200) {
+        state = AsyncData(House.fromJson(response.data));
+      } else {
+        state = AsyncValue.error(
+          response.data?.error,
+          StackTrace.fromString("Error"),
+        );
+      }
+    } catch (error, stack) {
+      state = AsyncError(error, stack);
+    }
   }
 }
 
@@ -45,23 +63,28 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   int? estateId;
   int? houseId;
   @override
-  List<House> build() {
-    return getHouses();
+  FutureOr<List<House>> build() async {
+    final housesServices = ref.read(housesServiceProvider);
+    final token = ref.watch(loginNotifier).value;
+
+    if (token == null) return [];
+
+    final response = await housesServices.getHouses(token, estateId!);
+
+    if (response.statusCode == 200) {
+      //print("HOUSE DATA FROM DB: $response.data");
+      final List<dynamic> data = response.data;
+      return data.map((house) => House.fromJson(house)).toList();
+    } else {
+      throw Exception("Failed to load houses");
+    }
   }
 
-  List<House> getHouses() {
-    final Estate currentEstate = ref.watch(estateProvider(estateId!))!;
-
-    return currentEstate.houses!.isNotEmpty ? currentEstate.houses! : [];
-  }
-
-  House getHouse() => state.value!.where((house) => house.id == houseId).first;
   Future<void> addHouse(Map<String, dynamic> houseData) async {
-    // 1. Optional: Set state to loading if you want a spinner
     state = const AsyncLoading();
     final estateService = ref.read(estateServiceProvider);
     final token = ref.read(loginNotifier).value;
-    //final previous = state.value ?? [];
+    //print("HOUSE DATA: $houseData");
 
     try {
       final response = await estateService.postHouse(
@@ -71,17 +94,31 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
       );
 
       if (response.statusCode == 201) {
-        // 2. Update the parent estate count
         ref
             .read(estatesProvider.notifier)
             .updateEstateHousesNumber(id: estateId!);
 
-        // 3. REFRESH THE DATA
-        // This forces the provider to re-run its build() method and fetch the latest list
-        ref.invalidateSelf();
+        // Safely extract utilities returned from the backend response using a null-aware fallback check
+        final List<dynamic>? rawUtilitiesJson =
+            response.data["utilities"] as List<dynamic>?;
+        final List<UtilityModel> parsedUtilities =
+            rawUtilitiesJson
+                ?.map((u) => UtilityModel.fromJson(u as Map<String, dynamic>))
+                .toList() ??
+            [];
 
-        // 4. Wait for the refresh to complete before the UI thinks we're "done"
-        await future;
+        state = AsyncData([
+          ...state.value!,
+          House(
+            id: response.data["id"],
+            houseType: HouseType.fromDbValue(houseData["house_type"]),
+            isOccupied: IsOccupied.fromValues(houseData["is_occupied"]),
+            name: houseData["name"],
+            images: List<String>.from(response.data["images"] ?? []),
+            utilities:
+                parsedUtilities, // Directly binds the clean, structured data models
+          ),
+        ]);
       }
     } catch (e, st) {
       state = AsyncError(e, st);

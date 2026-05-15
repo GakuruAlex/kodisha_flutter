@@ -12,24 +12,50 @@ class EstateService {
   }) async {
     final formData = FormData();
 
-    // text fields
-    // Ensure everything added to .fields is a .toString()
-    formData.fields.add(
-      MapEntry('house[house_name]', data['name']?.toString() ?? ''),
-    );
-    formData.fields.add(
-      MapEntry('house[house_type]', data['house_type']?.toString() ?? ''),
-    );
-    formData.fields.add(
+    // 1. Extract the actual house data (since we wrapped it in 'house' in runAction)
+    final houseData = data['house'] as Map<String, dynamic>;
+
+    // 2. Add Basic Text Fields
+    formData.fields.addAll([
+      MapEntry('house[house_name]', houseData['house_name']?.toString() ?? ''),
+      MapEntry('house[house_type]', houseData['house_type']?.toString() ?? ''),
       MapEntry(
         'house[is_occupied]',
-        data['is_occupied']?.toString() ?? 'false',
+        houseData['is_occupied']?.toString() ?? 'false',
       ),
-    );
+    ]);
 
-    // images
-    if (data["images"] != null && data["images"].isNotEmpty) {
-      for (var image in data["images"]) {
+    // 3. Add Nested Utilities Attributes
+    final utilities =
+        houseData['utilities_attributes'] as List<Map<String, dynamic>>?;
+    if (utilities != null) {
+      for (int i = 0; i < utilities.length; i++) {
+        final utility = utilities[i];
+        // Rails expects this specific indexed format for nested attributes
+        formData.fields.add(
+          MapEntry(
+            'house[utilities_attributes][$i][name]',
+            utility['name'].toString(),
+          ),
+        );
+        formData.fields.add(
+          MapEntry(
+            'house[utilities_attributes][$i][meter_no]',
+            utility['meter_no'].toString(),
+          ),
+        );
+        formData.fields.add(
+          MapEntry(
+            'house[utilities_attributes][$i][last_reading]',
+            utility['last_reading'].toString(),
+          ),
+        );
+      }
+    }
+
+    // 4. Add Images
+    if (houseData["images"] != null && houseData["images"].isNotEmpty) {
+      for (var image in houseData["images"]) {
         formData.files.add(
           MapEntry(
             'house[images][]',
@@ -39,19 +65,14 @@ class EstateService {
       }
     }
 
-    final options = Options(
-      method: "POST",
-      headers: {"Authorization": "Bearer $token"},
-    );
+    final options = Options(headers: {"Authorization": "Bearer $token"});
 
     try {
-      final response = await dio.post(
+      return await dio.post(
         "$estateUrl/$estateId/houses",
         options: options,
         data: formData,
       );
-
-      return response;
     } on DioException catch (e) {
       throw e.response?.data ?? e.message ?? "Upload failed";
     }

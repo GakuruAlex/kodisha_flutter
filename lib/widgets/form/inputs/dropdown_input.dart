@@ -5,6 +5,7 @@ class DropdownInput extends StatelessWidget {
   final List<String> options;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
+  final ValueChanged<String?>? onChanged; // Added this line
 
   const DropdownInput({
     super.key,
@@ -12,11 +13,13 @@ class DropdownInput extends StatelessWidget {
     required this.options,
     this.controller,
     this.validator,
+    this.onChanged, // Added this line
   });
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
+      // Changed initialValue to value to handle state changes accurately
       initialValue: (controller != null && options.contains(controller!.text))
           ? controller!.text
           : null,
@@ -32,8 +35,8 @@ class DropdownInput extends StatelessWidget {
         label: Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-          ),
+                color: Theme.of(context).colorScheme.primary,
+              ),
         ),
         border: InputBorder.none,
         contentPadding: EdgeInsets.zero,
@@ -45,13 +48,22 @@ class DropdownInput extends StatelessWidget {
               child: Text(
                 value,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
               ),
             ),
           )
           .toList(),
-      onChanged: (val) => controller?.text = val ?? "",
+      onChanged: (val) {
+        // 1. Keep your original logic to update the controller
+        if (controller != null) {
+          controller!.text = val ?? "";
+        }
+        // 2. Notify the FormFieldWidget and DynamicForm that a selection occurred
+        if (onChanged != null) {
+          onChanged!(val);
+        }
+      },
       validator: validator,
     );
   }

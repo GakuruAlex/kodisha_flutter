@@ -101,15 +101,19 @@ class House implements FormModel {
   }
 
   factory House.fromJson(Map<String, dynamic> house) {
-    // final List<UtilityModel> utilities = house["utilities"].map(
-    //   (utitlity) => utitlity.fromJson(),
-    // );
+    final List<UtilityModel> utilities = [
+      if (house["utilities"] != null)
+        ...(house["utilities"] as List).map(
+          (utility) => UtilityModel.fromJson(utility),
+        ),
+    ];
+    
     return House(
       name: house["house_name"],
       id: house["id"],
       isOccupied: IsOccupied.fromValues(house["is_occupied"]),
       houseType: HouseType.fromDbValue(house["house_type"]),
-      //utilities: utilities,
+      utilities: utilities,
       images: List<String>.from(house["images"]),
     );
   }
@@ -120,6 +124,9 @@ class House implements FormModel {
         "images": images,
         "is_occupied": isOccupied,
         "house_type": houseType,
+        "utilities_attributes": utilities
+            ?.map((element) => element.toJson())
+            .toList(),
       },
     };
   }
@@ -142,8 +149,7 @@ class House implements FormModel {
   @override
   Map<String, String> metaData() => {
     "is available": isOccupied!.value,
-    "house type": houseType!.value,
-    "account number": utilities?[0].meterNumber ?? "",
-    "account name": utilities?[0].name ?? "",
+    //"account number": utilities?[0].meterNumber ?? "",
+    //"account name": utilities?[0].name ?? "",
   };
 }

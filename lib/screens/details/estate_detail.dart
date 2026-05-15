@@ -96,10 +96,15 @@ class EstateDetail extends ConsumerWidget {
                           ? HouseCarousel(id: id)
                           : Text("No Houses yet."),
 
-                      error: (error, stackTrace) => Center(
-                        child: Text(
-                          "$error",
-                          style: TextStyle(color: colorsScheme.error),
+                      error: (error, stackTrace) => SingleChildScrollView(
+                        physics:
+                            const BouncingScrollPhysics(), // Optional: adds a nice scroll feel
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            "$error", // Including stackTrace helps with debugging!
+                            style: TextStyle(color: colorsScheme.error),
+                          ),
                         ),
                       ),
                       loading: () => Center(child: CircularProgressIndicator()),

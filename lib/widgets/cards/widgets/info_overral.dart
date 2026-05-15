@@ -9,6 +9,7 @@ class InfoOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.sizeOf(context).width,
+      // ignore: deprecated_member_use
       color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       child: Column(

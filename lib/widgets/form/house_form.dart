@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
+import 'package:kodisha_flutter/models/utility_model.dart';
 import 'package:kodisha_flutter/widgets/form/dynamic_form/dynamic_form.dart';
 
 class HouseForm extends StatelessWidget {
@@ -32,6 +33,13 @@ class HouseForm extends StatelessWidget {
               fieldIcon: Icons.toggle_on,
               options: IsOccupied.values
                   .map((element) => element.value)
+                  .toList(),
+            ),
+            DynamicFormField(
+              fieldLabel: "Account",
+              fieldIcon: Icons.water,
+              options: AccountName.values
+                  .map((element) => element.uiValue)
                   .toList(),
             ),
             DynamicFormField(fieldLabel: "Images", fieldIcon: Icons.image),

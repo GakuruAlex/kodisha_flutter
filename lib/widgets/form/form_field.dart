@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,6 +18,7 @@ class FormFieldWidget extends ConsumerStatefulWidget {
     required this.type,
     this.id,
     this.options,
+    this.onChanged, // Added this callback to pass selection state upwards
   });
 
   final Function(XFile?, List<XFile>?)? onImagePicked;
@@ -26,6 +29,7 @@ class FormFieldWidget extends ConsumerStatefulWidget {
   final TextEditingController? controller;
   final String type;
   final List<String>? options;
+  final ValueChanged<String?>? onChanged; // Callback type definition
 
   @override
   ConsumerState<FormFieldWidget> createState() => _FormFieldWidgetState();
@@ -34,7 +38,6 @@ class FormFieldWidget extends ConsumerStatefulWidget {
 class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
   @override
   Widget build(BuildContext context) {
-    // Logic for Edit mode...
     if (widget.type == "Edit" && widget.id != null) {
       final user = ref.watch(userDetailProvider(widget.id!));
       if (user != null && widget.controller?.text.isEmpty == true) {
@@ -43,12 +46,9 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
       }
     }
 
-    // Define a consistent decoration style for all inputs
     final inputDecoration = InputDecoration(
       labelText: widget.formLabel,
-      prefixIcon: Icon(
-        widget.formIcon,
-      ), // Moved icon from ListTile to the decoration
+      prefixIcon: Icon(widget.formIcon),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
@@ -83,21 +83,19 @@ class _FormFieldWidgetState extends ConsumerState<FormFieldWidget> {
         label: widget.formLabel,
         options: widget.options!,
         controller: widget.controller,
-        // Pass the decoration if your DropdownInput supports it,
-        // otherwise, wrap DropdownInput in an InputDecorator
+        onChanged: widget.onChanged,
       );
     } else {
       inputWidget = TextFormField(
         controller: widget.controller,
         obscureText: widget.fieldType.toLowerCase() == 'password',
-        decoration: inputDecoration, // Applied the bordered decoration here
+        decoration: inputDecoration,
         validator: (val) => (val == null || val.isEmpty)
             ? "${widget.formLabel} is required"
             : null,
       );
     }
 
-    // Removed the ListTile/Card wrap for a cleaner "Bordered Field" look
     return Material(
       type: MaterialType.transparency,
       child: Padding(
