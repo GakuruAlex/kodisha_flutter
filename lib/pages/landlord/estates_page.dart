@@ -12,111 +12,107 @@ class EstatesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final estates = ref.watch(estatesProvider);
     final content = Center(child: Text("No Estates yet. Add some!"));
-    return estates.value!.isEmpty
-        ? content
-        : Container(
-            decoration: loginContainerDecoration,
-            child: estates.when(
-              data: (data) => SizedBox(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    itemCount: data.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      childAspectRatio: 2.5,
+    return Container(
+      decoration: loginContainerDecoration,
+      child: estates.when(
+        data: (data) {
+          return data.isEmpty
+              ? content
+              : SizedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GridView.builder(
+                      itemCount: data.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        childAspectRatio: 2.5,
+                      ),
+                      itemBuilder: (context, index) => GenericCard(
+                        id: data[index].id!,
+                        provider: estateProvider(data[index].id!),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EstateDetail(id: data[index].id!),
+                            ),
+                          );
+                        },
+                        onDelete: (id) {
+                          return ref
+                              .read(estatesProvider.notifier)
+                              .deleteEstate(id: id);
+                        },
+                        modelName: "Estate",
+                      ),
+                      //EstatesItemsCard(id: data[index].id!),
                     ),
-                    itemBuilder: (context, index) => GenericCard(
-                      id: data[index].id!,
-                      provider: estateProvider(data[index].id!),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                EstateDetail(id: data[index].id!),
-                          ),
-                        );
-                      },
-                      onDelete: (id) {
-                        return ref
-                            .read(estatesProvider.notifier)
-                            .deleteEstate(id: id);
-                      },
-                      modelName: "Estate",
+                  ),
+                );
+        },
+        error: (error, stack) => Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.bug_report, color: Colors.red[400], size: 40),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Error Details",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ],
+              ),
+
+              const Divider(),
+
+              // Expanded ensures the scroll area takes up the available middle space
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Text(
+                      "$error\n\n$stack",
+                      style: TextStyle(
+                        fontFamily:
+                            'monospace', // Makes stack traces much easier to read
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onErrorContainer,
+                      ),
                     ),
-                    //EstatesItemsCard(id: data[index].id!),
                   ),
                 ),
               ),
-              error: (error, stack) => Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.bug_report,
-                          color: Colors.red[400],
-                          size: 40,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          "Error Details",
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
-                    ),
 
-                    const Divider(),
+              const SizedBox(height: 8),
 
-                    // Expanded ensures the scroll area takes up the available middle space
-                    Expanded(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.errorContainer,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: SingleChildScrollView(
-                          child: Text(
-                            "$error\n\n$stack",
-                            style: TextStyle(
-                              fontFamily:
-                                  'monospace', // Makes stack traces much easier to read
-                              fontSize: 12,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Fixed button at the bottom
-                    ElevatedButton.icon(
-                      onPressed: () => ref.invalidate(estatesProvider),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(
-                        "Try Again",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(200, 50),
-                      ),
-                    ),
-                  ],
+              // Fixed button at the bottom
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(estatesProvider),
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  "Try Again",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(200, 50),
                 ),
               ),
-              loading: () => CircularProgressIndicator(),
-            ),
-          );
+            ],
+          ),
+        ),
+        loading: () => Center(child: CircularProgressIndicator()),
+      ),
+    );
   }
 }

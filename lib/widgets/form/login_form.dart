@@ -11,10 +11,9 @@ class LoginForm extends ConsumerWidget {
   LoginForm({super.key});
 
   final controllers = {
-    "emailaddress": TextEditingController(),
-    "password": TextEditingController(),
+    "login_emailaddress": TextEditingController(),
+    "login_password": TextEditingController(),
   };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loginSuccess = ref.watch(loginNotifier);

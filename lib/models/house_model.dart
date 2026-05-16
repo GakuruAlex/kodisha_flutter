@@ -107,7 +107,7 @@ class House implements FormModel {
           (utility) => UtilityModel.fromJson(utility),
         ),
     ];
-    
+
     return House(
       name: house["house_name"],
       id: house["id"],
@@ -148,8 +148,8 @@ class House implements FormModel {
   String get subTitle => houseType?.value ?? "";
   @override
   Map<String, String> metaData() => {
-    "is available": isOccupied!.value,
+    "vacancy": isOccupied!.value,
+    //"account name": utilities?[0].name?.uiValue ?? "",
     //"account number": utilities?[0].meterNumber ?? "",
-    //"account name": utilities?[0].name ?? "",
   };
 }

@@ -109,10 +109,10 @@ ActionInput buildAction(
 }) {
   switch (formType.toLowerCase()) {
     case "login":
-      // Login usually doesn't have a prefix based on our previous fix
+      //print("LOGIN CONTROLLER: $controllers");
       return LoginInput(
-        email: controllers["emailaddress"]?.text ?? "",
-        password: controllers["password"]?.text ?? "",
+        email: controllers["login_emailaddress"]?.text ?? "",
+        password: controllers["login_password"]?.text ?? "",
       );
 
     case "create house":

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
+import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/screens/form/house_create.dart';
+import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 import 'package:kodisha_flutter/widgets/carousel/houses_carousel.dart';
@@ -96,17 +98,41 @@ class EstateDetail extends ConsumerWidget {
                           ? HouseCarousel(id: id)
                           : Text("No Houses yet."),
 
-                      error: (error, stackTrace) => SingleChildScrollView(
-                        physics:
-                            const BouncingScrollPhysics(), // Optional: adds a nice scroll feel
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            "$error", // Including stackTrace helps with debugging!
-                            style: TextStyle(color: colorsScheme.error),
+                      error: (error, stackTrace) {
+                        final errorString = error.toString().toLowerCase();
+                        final bool isUnauthorized =
+                            errorString.contains("unauthorized") ||
+                            errorString.contains("401");
+
+                        if (isUnauthorized) {
+                          Future.microtask(() {
+                            ref.invalidate(loginNotifier);
+
+                            if (context.mounted) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const Login(),
+                                ),
+                                (route) =>
+                                    false, // This removes all previous routes
+                              );
+                            }
+                          });
+                        }
+
+                        return SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              isUnauthorized
+                                  ? "Session expired. Please login again."
+                                  : "$error",
+                              style: TextStyle(color: colorsScheme.error),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                       loading: () => Center(child: CircularProgressIndicator()),
                     ),
                   ),
