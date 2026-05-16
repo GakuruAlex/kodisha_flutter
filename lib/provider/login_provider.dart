@@ -1,58 +1,69 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/services/login_service.dart';
 
-final loginNotifier = AsyncNotifierProvider<AsyncLoginNotifier, String>(
-  () => AsyncLoginNotifier(),
-);
-final loginServiceProvider = Provider((ref) => LoginService());
-final roleProvider = NotifierProvider<RoleNotifier, String>(
-  () => RoleNotifier(),
-);
+class AuthState {
+  final String? token;
+  final String role;
 
-class RoleNotifier extends Notifier<String> {
-  @override
-  String build() {
-    return "";
-  }
+  const AuthState({this.token, this.role = ""});
 
-  void setRole(String role) {
-    state = role;
-  }
-}
-
-class AsyncLoginNotifier extends AsyncNotifier<String> {
-  @override
-  String build() {
-    return '';
-  }
-
-  Future<void> loginUser(String email, String password) async {
-    final loginService = ref.read(loginServiceProvider);
-    state = AsyncLoading();
-    try {
-      final response = await loginService.login(email, password);
-      state = AsyncValue.data(response["token"]);
-      if (response.isNotEmpty) {
-        ref.read(roleProvider.notifier).setRole(response["user"]["role"]);
-      }
-    } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace);
-    }
-  }
+  bool get isAuthenticated => token != null && token!.isNotEmpty;
 }
 
 enum AuthRoleState { loggedOut, admin, member, unknown }
 
 final authRoleProvider = Provider<AuthRoleState>((ref) {
-  final user = ref.watch(loginNotifier).value;
-  final role = ref.watch(roleProvider);
+  final authAsync = ref.watch(loginNotifier);
 
-  if (user == null) return AuthRoleState.loggedOut;
-  if (role == 'admin') return AuthRoleState.admin;
-  if (role == 'member') return AuthRoleState.member;
+  if (authAsync.isLoading || authAsync.hasError || !authAsync.hasValue) {
+    return AuthRoleState.loggedOut;
+  }
+
+  final authState = authAsync.value!;
+
+  if (!authState.isAuthenticated) {
+    return AuthRoleState.loggedOut;
+  }
+
+  if (authState.role == 'admin') return AuthRoleState.admin;
+  if (authState.role == 'member') return AuthRoleState.member;
   return AuthRoleState.unknown;
 });
 
-final logoutProvider = Provider((ref) {
-  ref.invalidate(loginNotifier);
-});
+final loginNotifier = AsyncNotifierProvider<AsyncLoginNotifier, AuthState>(
+  () => AsyncLoginNotifier(),
+);
+
+final loginServiceProvider = Provider((ref) => LoginService());
+
+class AsyncLoginNotifier extends AsyncNotifier<AuthState> {
+  @override
+  FutureOr<AuthState> build() {
+    return const AuthState();
+  }
+
+  Future<void> loginUser(String email, String password) async {
+    final loginService = ref.read(loginServiceProvider);
+    state = const AsyncLoading();
+
+    try {
+      final response = await loginService.login(email, password);
+
+      if (response != null && response.containsKey("token")) {
+        final token = response["token"];
+        final role = response["user"]?["role"] ?? "";
+
+        state = AsyncValue.data(AuthState(token: token, role: role));
+      } else {
+        throw Exception("Invalid response structure from server");
+      }
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  void logout() {
+    state = const AsyncValue.data(AuthState());
+  }
+}
