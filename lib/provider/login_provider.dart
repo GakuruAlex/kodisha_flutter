@@ -50,7 +50,7 @@ class AsyncLoginNotifier extends AsyncNotifier<AuthState> {
     try {
       final response = await loginService.login(email, password);
 
-      if (response != null && response.containsKey("token")) {
+      if (response.containsKey("token")) {
         final token = response["token"];
         final role = response["user"]?["role"] ?? "";
 
