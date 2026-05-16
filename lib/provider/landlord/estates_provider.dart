@@ -19,8 +19,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
 
   Future<List<Estate>> landlordEstates() async {
     final userService = ref.read(landlordServiceProvider);
-    final token = ref.watch(loginNotifier).value;
-    
+    final token = ref.read(loginNotifier).value?.token;
     if (token == null) return [];
 
     final response = await userService.getEstates(token);
@@ -33,9 +32,9 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   }
 
   void addEstate(Map<String, dynamic> estateData) async {
-    final token = ref.read(loginNotifier).value;
+    final token = ref.read(loginNotifier).value?.token;
     final userService = ref.read(landlordServiceProvider);
-    
+
     // Hold reference to previous state to append new item
     final previousState = state.value ?? [];
     state = const AsyncLoading();
@@ -48,7 +47,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
 
       if (response.statusCode == 201) {
         final Map<String, dynamic> resData = response.data;
-        
+
         final newEstate = Estate(
           id: resData["id"],
           name: resData["name"],
@@ -66,9 +65,9 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   }
 
   Future<int> deleteEstate({required int id}) async {
-    final token = ref.read(loginNotifier).value;
+    final token = ref.read(loginNotifier).value?.token;
     final landlordService = ref.read(landlordServiceProvider);
-    
+
     try {
       final response = await landlordService.deleteEstate(
         token: token!,
@@ -77,7 +76,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
 
       if (response.statusCode == 200) {
         state = AsyncData(
-          state.value!.where((estate) => estate.id != id).toList()
+          state.value!.where((estate) => estate.id != id).toList(),
         );
       }
       return response.statusCode ?? 400;
@@ -98,6 +97,13 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
         else
           estate,
     ]);
+  }
+
+  void updateEstate({
+    required int id,
+    required Map<String, dynamic> estateData,
+  }) async {
+    final token = ref.read(loginNotifier).value?.token;
   }
 }
 

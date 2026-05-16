@@ -19,10 +19,9 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
 
   Future<void> getUsers() async {
     state = AsyncLoading();
-    final token = ref.watch(loginNotifier);
-
+    final token = ref.read(loginNotifier).value?.token;
     try {
-      final usersMap = await ref.read(userService).fetchUsers(token.value!);
+      final usersMap = await ref.read(userService).fetchUsers(token!);
       if (usersMap.isNotEmpty) {
         state = AsyncValue.data(
           usersMap.map((user) => User.fromJson(user)).toList(),
@@ -34,14 +33,14 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
   }
 
   Future<void> addUser(Map<String, dynamic> userData) async {
-    final token = ref.watch(loginNotifier);
+    final token = ref.read(loginNotifier).value?.token;
     final user = User.fromJson(userData);
     state = AsyncLoading();
 
     try {
       final response = await ref
           .read(userService)
-          .postUser(data: user.toJson([]), token: token.value!);
+          .postUser(data: user.toJson([]), token: token!);
       if (response.statusCode! == 201) {
         state = AsyncValue.data([
           ...state.value!,
@@ -56,7 +55,7 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
   Future<void> deleteUser(int id) async {
     state = AsyncLoading();
 
-    final token = ref.watch(loginNotifier);
+    final token = ref.read(loginNotifier).value?.token;
     final tempUsers = [...state.value!];
 
     final List<User> afterDelete = tempUsers
@@ -66,7 +65,7 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
     try {
       final response = await ref
           .read(userService)
-          .destroyUser(token: token.value!, id: id);
+          .destroyUser(token: token!, id: id);
       if (response.statusCode! == 200) {
         state = AsyncValue.data(afterDelete);
       }
@@ -76,14 +75,14 @@ class AsyncUserNotifier extends AsyncNotifier<List<User>> {
   }
 
   void updateUser(User updatedUser) async {
-    final token = ref.watch(loginNotifier);
+    final token = ref.read(loginNotifier).value?.token;
     state = AsyncLoading();
     List<User> users = state.value!;
     try {
       final response = await ref
           .read(userService)
           .update(
-            token: token.value!,
+            token: token!,
             id: updatedUser.id!,
             data: updatedUser.toJson([]),
           );

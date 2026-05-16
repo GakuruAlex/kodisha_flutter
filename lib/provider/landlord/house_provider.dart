@@ -38,12 +38,12 @@ class HouseNotifier extends AsyncNotifier<House> {
 
   Future<void> getHouse() async {
     final housesServices = ref.read(housesServiceProvider);
-    final token = ref.watch(loginNotifier).value!;
+    final token = ref.read(loginNotifier).value?.token;
 
     state = const AsyncLoading();
 
     try {
-      final response = await housesServices.getHouse(token, estateId, houseId);
+      final response = await housesServices.getHouse(token!, estateId, houseId);
       if (response.statusCode == 200) {
         state = AsyncData(House.fromJson(response.data));
       } else {
@@ -65,8 +65,7 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   @override
   FutureOr<List<House>> build() async {
     final housesServices = ref.read(housesServiceProvider);
-    final token = ref.watch(loginNotifier).value;
-
+    final token = ref.read(loginNotifier).value?.token;
     if (token == null) return [];
 
     final response = await housesServices.getHouses(token, estateId!);
@@ -83,8 +82,11 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   Future<void> addHouse(Map<String, dynamic> houseData) async {
     state = const AsyncLoading();
     final estateService = ref.read(estateServiceProvider);
-    final token = ref.read(loginNotifier).value;
-    //print("HOUSE DATA: $houseData");
+    final token = ref
+        .read(loginNotifier)
+        .value
+        ?.token;
+         //print("HOUSE DATA: $houseData");
 
     try {
       final response = await estateService.postHouse(

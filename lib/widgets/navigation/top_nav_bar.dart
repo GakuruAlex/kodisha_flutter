@@ -40,7 +40,7 @@ class TopNavBar extends ConsumerWidget implements PreferredSizeWidget {
             color: colorsScheme.error, // Your red color (0xFFDD0404)
             onPressed: () {
               ref.invalidate(estateProvider);
-              ref.invalidate(roleProvider);
+              ref.read(loginNotifier.notifier).logout();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => const Login()),
               );
