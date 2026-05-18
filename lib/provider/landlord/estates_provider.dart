@@ -103,15 +103,25 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     required int id,
     required Map<String, dynamic> estateData,
   }) async {
-    final token = ref.read(loginNotifier).value?.token;
-  }
+final token = ref.read(loginNotifier).value?.token;  }
 }
 
+// // family provider to get a specific estate by ID
+// final estateProvider = Provider.family<Estate?, int>((ref, estateId) {
+//   final estatesAsync = ref.watch(estatesProvider);
+//   return estatesAsync.value?.firstWhere(
+//     (estate) => estate.id == estateId,
+//     orElse: () => throw Exception("Estate not found"),
+//   );
+// });
 // family provider to get a specific estate by ID
 final estateProvider = Provider.family<Estate?, int>((ref, estateId) {
   final estatesAsync = ref.watch(estatesProvider);
-  return estatesAsync.value?.firstWhere(
-    (estate) => estate.id == estateId,
-    orElse: () => throw Exception("Estate not found"),
-  );
+  
+  final list = estatesAsync.value;
+  if (list == null) return null;
+
+  final index = list.indexWhere((estate) => estate.id == estateId);
+  
+  return index != -1 ? list[index] : null;
 });
