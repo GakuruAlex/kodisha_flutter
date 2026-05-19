@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:kodisha_flutter/provider/landlord/estate_provider.dart';
 import 'package:kodisha_flutter/provider/page_provider.dart';
 import 'package:kodisha_flutter/pages/landlord/estates_page.dart';
-import 'package:kodisha_flutter/screens/form/estate_create.dart';
+import 'package:kodisha_flutter/screens/form/estate/estate_create.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/navigation/bottom_navigation.dart';
 import 'package:kodisha_flutter/widgets/navigation/destination_item.dart';
