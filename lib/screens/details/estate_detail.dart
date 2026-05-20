@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
+import 'package:kodisha_flutter/screens/form/estate/edit_estate.dart';
 import 'package:kodisha_flutter/screens/form/house/house_create.dart';
 import 'package:kodisha_flutter/screens/login.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
@@ -64,6 +65,7 @@ class EstateDetail extends ConsumerWidget {
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * .4,
                 child: GenericCard(
+                  editWidget: EditEstateScreen(estate: estate),
                   id: id,
                   provider: estateProvider(id),
                   onTap: () {
