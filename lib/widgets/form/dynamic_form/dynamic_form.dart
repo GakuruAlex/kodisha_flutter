@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/actions/actions.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
-import 'package:kodisha_flutter/widgets/form/form_field.dart';
+import 'dynamic_fields_layout.dart';
 
 class DynamicForm extends ConsumerStatefulWidget {
   const DynamicForm({
@@ -40,19 +40,33 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
   final _formKey = GlobalKey<FormState>();
   XFile? _image;
   List<XFile>? _images;
-
   final Map<String, String?> _selectedDropdownValues = {};
 
   @override
   void initState() {
     super.initState();
+    _populateEditValues();
     _syncControllersToDropdownState();
   }
 
-  // Standardized key generator to use across the widget
-  String _generateKey(String prefix, String label) {
-    final sanitizedLabel = label.replaceAll(" ", "").toLowerCase();
-    return "${prefix}_$sanitizedLabel";
+  void _populateEditValues() {
+    if (!widget.isNested && widget.formType.toLowerCase().contains("edit") && widget.model != null) {
+      final values = widget.model!.toFormValues();
+      final currentPrefix = widget.parentKeyPrefix.isEmpty
+          ? widget.formType.replaceAll(" ", "").toLowerCase()
+          : widget.parentKeyPrefix;
+
+      widget.controllers.forEach((key, controller) {
+        if (key.startsWith("${currentPrefix}_")) {
+          final modelKey = key.replaceFirst("${currentPrefix}_", "");
+          if (values.containsKey(modelKey) && values[modelKey] != null) {
+            controller.text = values[modelKey].toString();
+          }
+        } else if (values.containsKey(key) && values[key] != null) {
+          controller.text = values[key].toString();
+        }
+      });
+    }
   }
 
   void _syncControllersToDropdownState() {
@@ -62,12 +76,11 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
 
     for (var field in widget.fields) {
       if (field.options != null && field.options!.isNotEmpty) {
-        final key = _generateKey(currentPrefix, field.fieldLabel);
+        final sanitizedLabel = field.fieldLabel.replaceAll(" ", "").toLowerCase();
+        final key = "${currentPrefix}_$sanitizedLabel";
 
-        if (widget.controllers.containsKey(key) &&
-            widget.controllers[key]!.text.isNotEmpty) {
-          _selectedDropdownValues[field.fieldLabel] =
-              widget.controllers[key]!.text;
+        if (widget.controllers.containsKey(key) && widget.controllers[key]!.text.isNotEmpty) {
+          _selectedDropdownValues[field.fieldLabel] = widget.controllers[key]!.text;
         }
       }
     }
@@ -75,107 +88,36 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
 
   @override
   Widget build(BuildContext context) {
-    final String currentPrefix = widget.parentKeyPrefix.isEmpty
-        ? widget.formType.replaceAll(" ", "").toLowerCase()
-        : widget.parentKeyPrefix;
-
-    // Handle Edit Mode values
-    if (widget.formType.toLowerCase().contains("edit") &&
-        widget.model != null) {
-      final values = widget.model!.toFormValues();
-      widget.controllers.forEach((key, controller) {
-        if (values.containsKey(key)) {
-          controller.text = values[key].toString();
-        }
-      });
-    }
-
-    final fieldsLayout = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: widget.fields.map((field) {
-        // --- KEY GENERATION FIX ---
-        // Removed the conditional check. Every field now gets a prefixed key.
-        final key = _generateKey(currentPrefix, field.fieldLabel);
-
-        if (field.subFields != null && field.subFields!.isNotEmpty) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  field.fieldLabel,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const Divider(),
-                DynamicForm(
-                  isNested: true,
-                  formType: field.fieldLabel,
-                  fields: field.subFields!,
-                  controllers: widget.controllers,
-                  buttonIcon: widget.buttonIcon,
-                  constraints: widget.constraints,
-                  parentKeyPrefix: key,
-                ),
-              ],
-            ),
-          );
-        }
-
-        bool shouldHideField = false;
-        if (widget.isNested) {
-          final masterDropdownField = widget.fields.firstWhere(
-            (f) => f.options != null && f.options!.isNotEmpty,
-            orElse: () => field,
-          );
-
-          if (masterDropdownField != field) {
-            final currentSelection =
-                _selectedDropdownValues[masterDropdownField.fieldLabel];
-            if (currentSelection == null || currentSelection.isEmpty) {
-              shouldHideField = true;
-            }
-          }
-        }
-
-        return AnimatedSize(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          child: shouldHideField
-              ? const SizedBox.shrink()
-              : FormFieldWidget(
-                  onImagePicked: (file, files) {
-                    setState(() {
-                      _image = file;
-                      _images = files;
-                    });
-                  },
-                  fieldType: field.fieldLabel,
-                  formIcon: field.fieldIcon,
-                  formLabel: field.fieldLabel,
-                  controller: widget.controllers[key],
-                  type: widget.formType,
-                  options: field.options,
-                  onChanged: (newValue) {
-                    if (field.options != null && field.options!.isNotEmpty) {
-                      setState(() {
-                        _selectedDropdownValues[field.fieldLabel] = newValue;
-                        widget.controllers[key]?.text = newValue ?? "";
-                      });
-                    }
-                  },
-                ),
-        );
-      }).toList(),
+    final fieldsLayout = DynamicFieldsLayout(
+      fields: widget.fields,
+      controllers: widget.controllers,
+      formType: widget.formType,
+      constraints: widget.constraints,
+      parentKeyPrefix: widget.parentKeyPrefix,
+      isNested: widget.isNested,
+      model: widget.model,
+      buttonIcon: widget.buttonIcon,
+      selectedDropdownValues: _selectedDropdownValues,
+      onImagePicked: (file, files) {
+        setState(() {
+          _image = file;
+          _images = files;
+        });
+      },
+      onDropdownChanged: (fieldLabel, key, newValue) {
+        setState(() {
+          _selectedDropdownValues[fieldLabel] = newValue;
+          widget.controllers[key]?.text = newValue ?? "";
+        });
+      },
     );
+
 
     if (widget.isNested) return fieldsLayout;
 
     return Padding(
       padding: EdgeInsets.all(widget.constraints["pad"] ?? 16.0),
       child: SizedBox(
-        // Safety check for 'Width' vs 'width'
         width: widget.constraints["width"] ?? widget.constraints["Width"],
         child: Form(
           key: _formKey,
