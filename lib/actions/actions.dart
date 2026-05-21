@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
-import 'package:kodisha_flutter/models/utility_model.dart'; // Added
+import 'package:kodisha_flutter/models/utility_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
 import 'package:kodisha_flutter/provider/login_provider.dart';
@@ -16,6 +16,14 @@ class LoginInput extends ActionInput {
   final String password;
 }
 
+class FormSubmitInput extends ActionInput {
+  FormSubmitInput({required this.formType, required this.payload, this.id});
+  final String formType;
+  final Map<String, dynamic>
+  payload;
+  final int? id;
+}
+
 class CreateHouseInput extends ActionInput {
   CreateHouseInput({
     required this.houseName,
@@ -23,14 +31,14 @@ class CreateHouseInput extends ActionInput {
     required this.images,
     required this.houseType,
     required this.isAvailable,
-    this.utilities, // Added to receive parsed inline utilities list
+    this.utilities,
   });
   final String houseName;
   final IsOccupied isAvailable;
   final int estateId;
   final List<XFile>? images;
   final HouseType houseType;
-  final List<UtilityModel>? utilities; // Added
+  final List<UtilityModel>? utilities;
 }
 
 class NewEstateInput extends ActionInput {
@@ -38,65 +46,6 @@ class NewEstateInput extends ActionInput {
   final String location;
   final String name;
   final XFile? image;
-}
-
-void runAction(ActionInput action, WidgetRef ref) {
-  switch (action) {
-    case LoginInput(:String email, :String password):
-      ref.read(loginNotifier.notifier).loginUser(email, password);
-      break;
-    case CreateHouseInput(
-      :String houseName,
-      :int estateId,
-      :List<XFile>? images,
-      :IsOccupied isAvailable,
-      :HouseType houseType,
-      :List<UtilityModel>? utilities,
-    ):
-      // 1. Map utilities to the 'attributes' format Rails requires
-      final List<Map<String, dynamic>> utilitiesAttributes =
-          utilities
-              ?.map(
-                (u) => {
-                  "name": AccountName.toDbValue(u.title),
-                  "meter_no": u.subTitle,
-                  "last_reading":
-                      int.tryParse(u.metaData()["last reading"] ?? "0") ?? 0,
-                },
-              )
-              .toList() ??
-          [];
-
-      // 2. Wrap everything in a "house" key so Rails params[:house] isn't nil
-      final Map<String, dynamic> payload = {
-        "house": {
-          "house_name": houseName,
-          "house_type": houseType.dbValue,
-          "is_occupied": isAvailable.dbValue,
-          "images": images,
-          "utilities_attributes":
-              utilitiesAttributes, // Note the _attributes suffix
-        },
-      };
-      //print("PAYLOAD IN ACTIONS: $payload");
-
-      ref
-          .read(
-            housesNotifierProvider((
-              estateId: estateId,
-              houseId: null,
-            )).notifier,
-          )
-          .addHouse(payload);
-      break;
-    case NewEstateInput(:String name, :String location, :XFile? image):
-      ref.read(estatesProvider.notifier).addEstate({
-        "location": location,
-        "name": name,
-        "image": image,
-      });
-      break;
-  }
 }
 
 ActionInput buildAction(
@@ -107,60 +56,146 @@ ActionInput buildAction(
   XFile? image,
   List<XFile>? images,
 }) {
-  switch (formType.toLowerCase()) {
-    case "login":
-      //print("LOGIN CONTROLLER: $controllers");
-      return LoginInput(
-        email: controllers["login_emailaddress"]?.text ?? "",
-        password: controllers["login_password"]?.text ?? "",
-      );
+  final normalizedFormType = formType.toLowerCase();
 
-    case "create house":
-      // These keys match your log exactly:
-      final nameValue = controllers["createhouse_housename"]?.text ?? "";
-      final typeValue = controllers["createhouse_housetype"]?.text ?? "";
-      final occupiedValue = controllers["createhouse_isoccupied"]?.text ?? "";
+  if (normalizedFormType == "login") {
+    return LoginInput(
+      email: controllers["login_emailaddress"]?.text ?? "",
+      password: controllers["login_password"]?.text ?? "",
+    );
+  }
 
-      // Utility keys from your log:
-      final uName =
-          controllers["createhouse_utilities_utilityname"]?.text ?? "";
-      final uMeter = controllers["createhouse_utilities_meterno"]?.text ?? "";
-      final uRead =
-          controllers["createhouse_utilities_lastreading"]?.text ?? "";
+  final Map<String, String> extractedFields = {};
+  controllers.forEach((key, controller) {
+    if (key.contains('_')) {
+      final cleanKey = key.substring(key.lastIndexOf('_') + 1);
+      extractedFields[cleanKey] = controller.text;
+    } else {
+      extractedFields[key] = controller.text;
+    }
+  });
 
-      List<UtilityModel> parsedUtilities = [];
-      if (uName.isNotEmpty) {
-        parsedUtilities.add(
-          UtilityModel(
-            name: AccountName.values.firstWhere((e) => e.uiValue == uName),
-            meterNumber: uMeter,
-            lastReading: int.tryParse(uRead) ?? 0,
-          ),
-        );
-      }
+  final isEdit = normalizedFormType.contains("edit");
 
-      return CreateHouseInput(
-        houseName: nameValue,
-        houseType: HouseType.fromUiValue(typeValue),
-        isAvailable: IsOccupied.fromValues(IsOccupied.toValue(occupiedValue)),
-        images: images,
-        estateId: id!,
-        utilities: parsedUtilities,
-      );
-    case "create estate":
-      // Explicitly matching the pattern: formtype_fieldname
-      //print("Controllers in buildaction create estate: $controllers");
-      final nameValue = controllers["createestate_name"]?.text ?? "";
-      final locationValue = controllers["createestate_location"]?.text ?? "";
-
-      return NewEstateInput(
-        name: nameValue,
-        location: locationValue,
+  if (isEdit && model != null) {
+    return FormSubmitInput(
+      formType: normalizedFormType,
+      id: id ?? model.id,
+      payload: model.toJson(
+        formFields: extractedFields,
         image: image,
-      );
+        images: images,
+      ),
+    );
+  }
 
-    default:
-      throw UnsupportedError("Unknown form type: $formType");
+  if (normalizedFormType.contains("estate")) {
+    return NewEstateInput(
+      name: extractedFields["name"] ?? "",
+      location: extractedFields["location"] ?? "",
+      image: image,
+    );
+  }
+
+  if (normalizedFormType.contains("house")) {
+    final utilityName = extractedFields["utilityname"] ?? "";
+    List<UtilityModel> parsedUtilities = [];
+
+    if (utilityName.isNotEmpty) {
+      parsedUtilities.add(
+        UtilityModel(
+          name: AccountName.values.firstWhere(
+            (e) => e.uiValue == utilityName,
+            orElse: () => AccountName.wateraccount,
+          ),
+          meterNumber: extractedFields["meterno"] ?? "",
+          lastReading: int.tryParse(extractedFields["lastreading"] ?? "") ?? 0,
+        ),
+      );
+    }
+
+    return CreateHouseInput(
+      houseName: extractedFields["housename"] ?? "",
+      houseType: HouseType.fromUiValue(extractedFields["housetype"] ?? ""),
+      isAvailable: IsOccupied.fromValues(
+        IsOccupied.toValue(extractedFields["isoccupied"] ?? ""),
+      ),
+      images: images,
+      estateId:
+          id ?? 0,
+      utilities: parsedUtilities,
+    );
+  }
+
+  throw UnsupportedError(
+    "Gate routing failed. Unknown form configuration signature: $formType",
+  );
+}
+
+void runAction(ActionInput action, WidgetRef ref) {
+  switch (action) {
+    case LoginInput(:String email, :String password):
+      ref.read(loginNotifier.notifier).loginUser(email, password);
+      break;
+
+    case NewEstateInput(:String name, :String location, :XFile? image):
+      ref.read(estatesProvider.notifier).addEstate({
+        "name": name,
+        "location": location,
+        "image": image,
+      });
+      break;
+
+    case CreateHouseInput(
+      :String houseName,
+      :int estateId,
+      :List<XFile>? images,
+      :IsOccupied isAvailable,
+      :HouseType houseType,
+      :List<UtilityModel>? utilities,
+    ):
+      final List<Map<String, dynamic>> utilitiesAttributes =
+          utilities?.map((u) {
+            return {
+              "name": u.name?.dbValue ?? AccountName.wateraccount.dbValue,
+              "meter_no": u.meterNumber ?? "",
+              "last_reading": u.lastReading ?? 0,
+            };
+          }).toList() ??
+          [];
+
+      final Map<String, dynamic> payload = {
+        "house": {
+          "house_name": houseName,
+          "house_type": houseType.dbValue,
+          "is_occupied": isAvailable.dbValue,
+          "images": images,
+          "utilities_attributes": utilitiesAttributes,
+        },
+      };
+
+      ref
+          .read(
+            housesNotifierProvider((
+              estateId: estateId,
+              houseId: null,
+            )).notifier,
+          )
+          .addHouse(payload);
+      break;
+
+    case FormSubmitInput(
+      :String formType,
+      :Map<String, dynamic> payload,
+      :int? id,
+    ):
+      if (formType.contains("estate")) {
+        //ref.read(estatesProvider.notifier).updateEstate(id!, payload);
+      } else if (formType.contains("house")) {
+        // ref.read(housesNotifierProvider((estateId: id ?? 0, houseId: id)).notifier)
+        //     .updateHouse(payload);
+      }
+      break;
   }
 }
 
