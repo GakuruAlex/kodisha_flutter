@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 
@@ -61,9 +62,29 @@ class Estate implements FormModel {
       estateImage: estate["image"],
     );
   }
-  Map<String, Map<dynamic, dynamic>> toJson() {
+  @override
+  Map<String, dynamic> toJson({
+    Map<String, String>? formFields,
+    XFile? image,
+    List<XFile>? images,
+  }) {
+    final finalName = (formFields != null && formFields.containsKey("name"))
+        ? formFields["name"]
+        : name;
+
+    final finalLocation =
+        (formFields != null && formFields.containsKey("location"))
+        ? formFields["location"]
+        : location;
+
+    final finalImage = image ?? estateImage;
+
     return {
-      "estate": {"location": location, "name": name, "image": estateImage},
+      "estate": {
+        "name": finalName,
+        "location": finalLocation,
+        "image": finalImage,
+      },
     };
   }
 

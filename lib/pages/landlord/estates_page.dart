@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/screens/details/estate_detail.dart';
+import 'package:kodisha_flutter/screens/form/estate/edit_estate.dart';
 import 'package:kodisha_flutter/theme/main_theme.dart';
 import 'package:kodisha_flutter/widgets/cards/generic_card.dart';
 
@@ -28,6 +29,7 @@ class EstatesPage extends ConsumerWidget {
                         childAspectRatio: 2.5,
                       ),
                       itemBuilder: (context, index) => GenericCard(
+                        editWidget: EditEstateScreen(estate: data[index]),
                         id: data[index].id!,
                         provider: estateProvider(data[index].id!),
                         onTap: () {

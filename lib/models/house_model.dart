@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/utility_model.dart';
 
@@ -117,20 +118,44 @@ class House implements FormModel {
       images: List<String>.from(house["images"]),
     );
   }
-  Map<String, dynamic> toJson() {
-    return {
-      "house": {
-        "house_name": name,
-        "images": images,
-        "is_occupied": isOccupied,
-        "house_type": houseType,
-        "utilities_attributes": utilities
-            ?.map((element) => element.toJson())
-            .toList(),
-      },
-    };
-  }
+  @override
+  Map<String, dynamic> toJson({
+  Map<String, String>? formFields, 
+  XFile? image,
+  List<XFile>? images,
+}) {
+  final finalName = (formFields != null && formFields.containsKey("name"))
+      ? formFields["name"]
+      : name;
 
+  final finalIsOccupied = (formFields != null && formFields.containsKey("isoccupied"))
+      ? formFields["isoccupied"]
+      : isOccupied;
+
+  final finalHouseType = (formFields != null && formFields.containsKey("housetype"))
+      ? formFields["housetype"]
+      : houseType;
+
+  final finalImages = images ?? this.images;
+
+  return {
+    "house": {
+      if (id != null) "id": id,
+      
+      "house_name": finalName,
+      "images": finalImages,
+      "is_occupied": finalIsOccupied,
+      "house_type": finalHouseType,
+      
+      if (utilities != null)
+        "utilities_attributes": utilities!.map((utility) {
+          return utility.toJson(
+            formFields: formFields,
+          );
+        }).toList(),
+    },
+  };
+}
   @override
   Map<String, dynamic> toFormValues() => {
     "id": id,
