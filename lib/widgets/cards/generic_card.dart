@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:kodisha_flutter/actions/actions.dart';
+import 'package:kodisha_flutter/actions/form_dialogs.dart';
 import 'package:kodisha_flutter/main.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/widgets/cards/widgets/build_image.dart';

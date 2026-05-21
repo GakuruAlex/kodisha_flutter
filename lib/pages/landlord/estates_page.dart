@@ -12,7 +12,14 @@ class EstatesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final estates = ref.watch(estatesProvider);
-    final content = Center(child: Text("No Estates yet. Add some!"));
+    final content = Center(
+      child: Text(
+        "No Estates yet. Add some!",
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+    );
     return Container(
       decoration: loginContainerDecoration,
       child: estates.when(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/models/estate_model.dart'; // Adjust path if needed
+import 'package:kodisha_flutter/models/estate_model.dart'; 
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/widgets/form/dynamic_form/dynamic_form.dart';
 
@@ -18,7 +18,6 @@ class EditEstateScreen extends ConsumerStatefulWidget {
 
 class _EditEstateScreenState extends ConsumerState<EditEstateScreen> {
   final Map<String, TextEditingController> _formControllers = {};
-  //bool _hasPickedNewImage = false;
 
   final List<DynamicFormField> _estateFields = [
     DynamicFormField(
@@ -60,12 +59,16 @@ class _EditEstateScreenState extends ConsumerState<EditEstateScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final colorScheme = Theme.of(context).colorScheme;
     
     final Map<String, double> constraints = {
       "width": size.width,
       "pad": 16.0,
       "tileWidth": size.width * 0.85,
     };
+
+    
+    final currentImageUrl = widget.estate.imageUrl; 
 
     return Scaffold(
       appBar: AppBar(
@@ -74,6 +77,64 @@ class _EditEstateScreenState extends ConsumerState<EditEstateScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            const SizedBox(height: 16),
+            
+            Container(
+              width: constraints["tileWidth"] ?? size.width * 0.85,
+              height: 180,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.outlineVariant,
+                  width: 1,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: currentImageUrl != null && currentImageUrl.isNotEmpty
+                    ? Image.network(
+                        currentImageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) => Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image, size: 40, color: colorScheme.error),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Failed to load image preview",
+                              style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.image_not_supported, size: 44, color: colorScheme.onSurfaceVariant),
+                          const SizedBox(height: 8),
+                          Text(
+                            "No existing image uploaded",
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+
             DynamicForm(
               formType: "Edit Estate", 
               fields: _estateFields,

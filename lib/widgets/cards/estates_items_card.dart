@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/actions/actions.dart';
+import 'package:kodisha_flutter/actions/form_dialogs.dart';
 import 'package:kodisha_flutter/main.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/screens/details/estate_detail.dart';
