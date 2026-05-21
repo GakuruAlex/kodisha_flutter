@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:kodisha_flutter/actions/actions.dart';
+import 'package:kodisha_flutter/actions/form_builder.dart';
+import 'package:kodisha_flutter/actions/form_executor.dart';
 import 'package:kodisha_flutter/models/form_field.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'dynamic_fields_layout.dart';
+import 'dynamic_form_state_mixin.dart'; // Import mixin file
 
 class DynamicForm extends ConsumerStatefulWidget {
   const DynamicForm({
@@ -36,54 +37,14 @@ class DynamicForm extends ConsumerStatefulWidget {
   ConsumerState<DynamicForm> createState() => _DynamicFormState();
 }
 
-class _DynamicFormState extends ConsumerState<DynamicForm> {
+class _DynamicFormState extends ConsumerState<DynamicForm> with DynamicFormStateMixin {
   final _formKey = GlobalKey<FormState>();
-  XFile? _image;
-  List<XFile>? _images;
-  final Map<String, String?> _selectedDropdownValues = {};
 
   @override
   void initState() {
     super.initState();
-    _populateEditValues();
-    _syncControllersToDropdownState();
-  }
-
-  void _populateEditValues() {
-    if (!widget.isNested && widget.formType.toLowerCase().contains("edit") && widget.model != null) {
-      final values = widget.model!.toFormValues();
-      final currentPrefix = widget.parentKeyPrefix.isEmpty
-          ? widget.formType.replaceAll(" ", "").toLowerCase()
-          : widget.parentKeyPrefix;
-
-      widget.controllers.forEach((key, controller) {
-        if (key.startsWith("${currentPrefix}_")) {
-          final modelKey = key.replaceFirst("${currentPrefix}_", "");
-          if (values.containsKey(modelKey) && values[modelKey] != null) {
-            controller.text = values[modelKey].toString();
-          }
-        } else if (values.containsKey(key) && values[key] != null) {
-          controller.text = values[key].toString();
-        }
-      });
-    }
-  }
-
-  void _syncControllersToDropdownState() {
-    final currentPrefix = widget.parentKeyPrefix.isEmpty
-        ? widget.formType.replaceAll(" ", "").toLowerCase()
-        : widget.parentKeyPrefix;
-
-    for (var field in widget.fields) {
-      if (field.options != null && field.options!.isNotEmpty) {
-        final sanitizedLabel = field.fieldLabel.replaceAll(" ", "").toLowerCase();
-        final key = "${currentPrefix}_$sanitizedLabel";
-
-        if (widget.controllers.containsKey(key) && widget.controllers[key]!.text.isNotEmpty) {
-          _selectedDropdownValues[field.fieldLabel] = widget.controllers[key]!.text;
-        }
-      }
-    }
+    populateEditValues();
+    syncControllersToDropdownState();
   }
 
   @override
@@ -97,21 +58,10 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
       isNested: widget.isNested,
       model: widget.model,
       buttonIcon: widget.buttonIcon,
-      selectedDropdownValues: _selectedDropdownValues,
-      onImagePicked: (file, files) {
-        setState(() {
-          _image = file;
-          _images = files;
-        });
-      },
-      onDropdownChanged: (fieldLabel, key, newValue) {
-        setState(() {
-          _selectedDropdownValues[fieldLabel] = newValue;
-          widget.controllers[key]?.text = newValue ?? "";
-        });
-      },
+      selectedDropdownValues: selectedDropdownValues,
+      onImagePicked: updateImageState,
+      onDropdownChanged: updateDropdownState,
     );
-
 
     if (widget.isNested) return fieldsLayout;
 
@@ -137,8 +87,8 @@ class _DynamicFormState extends ConsumerState<DynamicForm> {
                           widget.controllers,
                           widget.model,
                           widget.id,
-                          image: _image,
-                          images: _images,
+                          image: image,
+                          images: images,
                         ),
                         ref,
                       );
