@@ -3,127 +3,100 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/models/utility_model.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
-import 'package:kodisha_flutter/provider/login_provider.dart';
 import 'package:kodisha_flutter/services/landlord/estate_service.dart';
 import 'package:kodisha_flutter/services/landlord/house_service.dart';
+import 'package:kodisha_flutter/services/api_client.dart'; // Assuming dioProvider lives here
 
-final housesNotifierProvider =
-    AsyncNotifierProvider.family<
-      HousesNotifier,
-      List<House>,
-      ({int? estateId, int? houseId})
-    >((params) => HousesNotifier(params.estateId, params.houseId));
-final estateServiceProvider = Provider((ref) => EstateService());
-final housesServiceProvider = Provider((ref) => HouseService());
-final houseValueProvider =
-    Provider.family<House?, ({int estateId, int houseId})>((ref, params) {
-      return ref.watch(houseNotifierProvider(params)).value;
-    });
-final houseNotifierProvider =
-    AsyncNotifierProvider.family<
-      HouseNotifier,
-      House,
-      ({int houseId, int estateId})
-    >((params) => HouseNotifier(params.houseId, params.estateId));
+// 📦 1. Services
+final estateServiceProvider = Provider((ref) {
+  final dio = ref.read(dioProvider);
+  return EstateService(dio);
+});
+
+final housesServiceProvider = Provider((ref) {
+  final dio = ref.read(dioProvider);
+  return HouseService(dio);
+});
+
+// 🏘️ 2. Read-Only State Family Providers
+final houseValueProvider = Provider.family<House?, ({int estateId, int houseId})>((ref, params) {
+  return ref.watch(houseNotifierProvider(params)).value;
+});
+
+// 🔄 3. Individual House State Engine
+// 🔑 Use HouseNotifier.new to pass the parameter Record into the constructor
+final houseNotifierProvider = AsyncNotifierProvider.family<HouseNotifier, House, ({int houseId, int estateId})>(
+  HouseNotifier.new,
+);
 
 class HouseNotifier extends AsyncNotifier<House> {
-  HouseNotifier(this.houseId, this.estateId);
-  final int houseId;
-  final int estateId;
+  HouseNotifier(this.arg);
+  final ({int houseId, int estateId}) arg;
+
   @override
   FutureOr<House> build() async {
-    await getHouse();
-    return state.value!;
+    final response = await ref.read(housesServiceProvider).getHouse(arg.estateId, arg.houseId);
+    return House.fromJson(response.data);
   }
 
-  Future<void> getHouse() async {
-    final housesServices = ref.read(housesServiceProvider);
-    final token = ref.read(loginNotifier).value?.token;
-
+  Future<void> refreshHouse() async {
     state = const AsyncLoading();
-
-    try {
-      final response = await housesServices.getHouse(token!, estateId, houseId);
-      if (response.statusCode == 200) {
-        state = AsyncData(House.fromJson(response.data));
-      } else {
-        state = AsyncValue.error(
-          response.data?.error,
-          StackTrace.fromString("Error"),
-        );
-      }
-    } catch (error, stack) {
-      state = AsyncError(error, stack);
-    }
+    state = await AsyncValue.guard(() async {
+      final response = await ref.read(housesServiceProvider).getHouse(arg.estateId, arg.houseId);
+      return House.fromJson(response.data);
+    });
   }
 }
 
+// 🗂️ 4. Houses List Collection State Engine
+final housesNotifierProvider = AsyncNotifierProvider.family<HousesNotifier, List<House>, ({int? estateId, int? houseId})>(
+  HousesNotifier.new,
+);
+
 class HousesNotifier extends AsyncNotifier<List<House>> {
-  HousesNotifier(this.estateId, this.houseId);
-  int? estateId;
-  int? houseId;
+  HousesNotifier(this.arg);
+  final ({int? estateId, int? houseId}) arg;
+
   @override
   FutureOr<List<House>> build() async {
-    final housesServices = ref.read(housesServiceProvider);
-    final token = ref.read(loginNotifier).value?.token;
-    if (token == null) return [];
-
-    final response = await housesServices.getHouses(token, estateId!);
-
-    if (response.statusCode == 200) {
-      //print("HOUSE DATA FROM DB: $response.data");
-      final List<dynamic> data = response.data;
-      return data.map((house) => House.fromJson(house)).toList();
-    } else {
-      throw Exception("Failed to load houses");
-    }
+    if (arg.estateId == null) return [];
+    
+    final response = await ref.read(housesServiceProvider).getHouses(arg.estateId!);
+    final List<dynamic> data = response.data;
+    return data.map((house) => House.fromJson(house)).toList();
   }
 
   Future<void> addHouse(Map<String, dynamic> houseData) async {
+    if (arg.estateId == null) return;
+    
+    final previousState = state.value ?? [];
     state = const AsyncLoading();
-    final estateService = ref.read(estateServiceProvider);
-    final token = ref
-        .read(loginNotifier)
-        .value
-        ?.token;
-         //print("HOUSE DATA: $houseData");
 
-    try {
-      final response = await estateService.postHouse(
-        token: token!,
-        data: houseData,
-        estateId: estateId!,
+    state = await AsyncValue.guard(() async {
+      final response = await ref.read(estateServiceProvider).postHouse(
+            data: houseData,
+            estateId: arg.estateId!,
+          );
+
+      ref.read(estatesProvider.notifier).updateEstateHousesNumber(id: arg.estateId!);
+
+      final List<dynamic>? rawUtilitiesJson = response.data["utilities"] as List<dynamic>?;
+      final List<UtilityModel> parsedUtilities = rawUtilitiesJson
+              ?.map((u) => UtilityModel.fromJson(u as Map<String, dynamic>))
+              .toList() ?? [];
+
+      final Map<String, dynamic> houseFormValues = houseData["house"] ?? houseData;
+
+      final newHouse = House(
+        id: response.data["id"],
+        houseType: HouseType.fromDbValue(houseFormValues["house_type"]),
+        isOccupied: IsOccupied.fromValues(houseFormValues["is_occupied"]),
+        name: houseFormValues["house_name"] ?? houseFormValues["name"],
+        images: List<String>.from(response.data["images"] ?? []),
+        utilities: parsedUtilities,
       );
 
-      if (response.statusCode == 201) {
-        ref
-            .read(estatesProvider.notifier)
-            .updateEstateHousesNumber(id: estateId!);
-
-        // Safely extract utilities returned from the backend response using a null-aware fallback check
-        final List<dynamic>? rawUtilitiesJson =
-            response.data["utilities"] as List<dynamic>?;
-        final List<UtilityModel> parsedUtilities =
-            rawUtilitiesJson
-                ?.map((u) => UtilityModel.fromJson(u as Map<String, dynamic>))
-                .toList() ??
-            [];
-
-        state = AsyncData([
-          ...state.value!,
-          House(
-            id: response.data["id"],
-            houseType: HouseType.fromDbValue(houseData["house_type"]),
-            isOccupied: IsOccupied.fromValues(houseData["is_occupied"]),
-            name: houseData["name"],
-            images: List<String>.from(response.data["images"] ?? []),
-            utilities:
-                parsedUtilities, // Directly binds the clean, structured data models
-          ),
-        ]);
-      }
-    } catch (e, st) {
-      state = AsyncError(e, st);
-    }
+      return [...previousState, newHouse];
+    });
   }
 }

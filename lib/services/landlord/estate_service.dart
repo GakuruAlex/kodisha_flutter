@@ -1,21 +1,21 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-final dio = Dio();
 
 class EstateService {
-  final estateUrl = dotenv.env["LANDLORD_ESTATE_BASE_URL"];
+  final Dio _dio;
+
+  // 🔑 Inject the interceptor-configured Dio client via constructor
+  EstateService(this._dio);
+
   Future<Response> postHouse({
     required Map<String, dynamic> data,
-    required String token,
     required int estateId,
   }) async {
     final formData = FormData();
 
-    // 1. Extract the actual house data (since we wrapped it in 'house' in runAction)
+    // 1. Extract the actual house data maps
     final houseData = data['house'] as Map<String, dynamic>;
 
-    // 2. Add Basic Text Fields
+    // 2. Add Basic Text Fields structured for Rails Strong Parameters
     formData.fields.addAll([
       MapEntry('house[house_name]', houseData['house_name']?.toString() ?? ''),
       MapEntry('house[house_type]', houseData['house_type']?.toString() ?? ''),
@@ -26,36 +26,32 @@ class EstateService {
     ]);
 
     // 3. Add Nested Utilities Attributes
-    final utilities =
-        houseData['utilities_attributes'] as List<Map<String, dynamic>>?;
+    final utilities = houseData['utilities_attributes'] as List<dynamic>?;
     if (utilities != null) {
       for (int i = 0; i < utilities.length; i++) {
-        final utility = utilities[i];
-        // Rails expects this specific indexed format for nested attributes
-        formData.fields.add(
+        final utility = utilities[i] as Map<String, dynamic>;
+
+        formData.fields.addAll([
           MapEntry(
             'house[utilities_attributes][$i][name]',
-            utility['name'].toString(),
+            utility['name']?.toString() ?? '',
           ),
-        );
-        formData.fields.add(
           MapEntry(
             'house[utilities_attributes][$i][meter_no]',
-            utility['meter_no'].toString(),
+            utility['meter_no']?.toString() ?? '',
           ),
-        );
-        formData.fields.add(
           MapEntry(
             'house[utilities_attributes][$i][last_reading]',
-            utility['last_reading'].toString(),
+            utility['last_reading']?.toString() ?? '',
           ),
-        );
+        ]);
       }
     }
 
-    // 4. Add Images
+    // 4. Add Multi-Image Binary Streams using MultipartFile
     if (houseData["images"] != null && houseData["images"].isNotEmpty) {
       for (var image in houseData["images"]) {
+        // 'image' is an XFile instance coming out of image_picker
         formData.files.add(
           MapEntry(
             'house[images][]',
@@ -65,16 +61,7 @@ class EstateService {
       }
     }
 
-    final options = Options(headers: {"Authorization": "Bearer $token"});
-
-    try {
-      return await dio.post(
-        "$estateUrl/$estateId/houses",
-        options: options,
-        data: formData,
-      );
-    } on DioException catch (e) {
-      throw e.response?.data ?? e.message ?? "Upload failed";
-    }
+    // 🚀 Execute the request. Base URL and Headers are injected automatically by the interceptor!
+    return await _dio.post("landlord/estate/$estateId/houses", data: formData);
   }
 }
