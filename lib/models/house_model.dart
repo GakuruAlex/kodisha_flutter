@@ -119,11 +119,11 @@ class House implements FormModel {
     );
   }
   @override
-  Map<String, dynamic> toJson({
+  Future<Map<String, dynamic>> toJson({
   Map<String, String>? formFields, 
   XFile? image,
   List<XFile>? images,
-}) {
+}) async{
   final finalName = (formFields != null && formFields.containsKey("name"))
       ? formFields["name"]
       : name;

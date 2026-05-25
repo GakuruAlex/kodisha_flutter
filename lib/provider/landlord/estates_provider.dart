@@ -1,14 +1,8 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
-import 'package:kodisha_flutter/provider/login_provider.dart';
-import 'package:kodisha_flutter/services/api_client.dart';
 import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
 
-import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/models/estate_model.dart';
-import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
 
 final estatesProvider = AsyncNotifierProvider<EstatesNotifier, List<Estate>>(
   () => EstatesNotifier(),
