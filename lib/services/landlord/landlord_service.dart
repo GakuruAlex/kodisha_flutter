@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/services/api_client.dart';
 
 final landlordServiceProvider = Provider((ref) {
@@ -19,21 +17,7 @@ class LandlordService {
   }
 
   Future<Response> postNewEstate({required Map<String, dynamic> data}) async {
-    final Map<String, dynamic> mapWithMultipart = Map.from(data);
-    debugPrint("FORMDATA $mapWithMultipart");
-
-    if (mapWithMultipart['image'] is XFile) {
-      final XFile file = mapWithMultipart['image'];
-
-      mapWithMultipart['image'] = await MultipartFile.fromFile(
-        file.path,
-        filename: file.name,
-      );
-    }
-
-    final formData = FormData.fromMap(mapWithMultipart);
-
-    return await _dio.post('landlord/new-estate', data: formData);
+    return await _dio.post('landlord/estates', data: data);
   }
 
   Future<Response> deleteEstate({required int estateID}) async {

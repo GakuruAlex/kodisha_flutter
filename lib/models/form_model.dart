@@ -8,7 +8,7 @@ abstract class FormModel {
   List<String>? get imagesUrl;
   Map<String, String> metaData();
   Map<String, dynamic> toFormValues();
-  Future<Map<String, dynamic>> toJson({
+  Map<String, dynamic> toJson({
     Map<String, String>? formFields,
     XFile? image,
     List<XFile>? images,

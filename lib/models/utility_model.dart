@@ -73,11 +73,11 @@ class UtilityModel implements FormModel {
   }
 
   @override
-  Future<Map<String, dynamic>> toJson({
+  Map<String, dynamic> toJson({
     Map<String, String>? formFields,
     XFile? image,
     List<XFile>? images,
-  }) async{
+  }) {
     final finalNameString =
         (formFields != null && formFields.containsKey("name"))
         ? formFields["name"]

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/form_model.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
@@ -62,12 +61,13 @@ class Estate implements FormModel {
       houses: estateHouses,
       estateImage: estate["image"],
     );
-  }@override
-  Future<Map<String, dynamic>> toJson({
+  }
+  @override
+  Map<String, dynamic> toJson({
     Map<String, String>? formFields,
     XFile? image,
     List<XFile>? images,
-  }) async {
+  }) {
     final finalName = (formFields != null && formFields.containsKey("name"))
         ? formFields["name"]
         : name;
@@ -77,27 +77,14 @@ class Estate implements FormModel {
         ? formFields["location"]
         : location;
 
-    // Dynamically handle the image payload
-    dynamic imagePayload;
-    
-    if (image != null) {
-      // If a local XFile is provided, transform it into a MultipartFile asynchronously
-      imagePayload = await MultipartFile.fromFile(
-        image.path,
-        filename: image.name,
-      );
-    } else {
-      // Fallback to the existing remote image URL string if no new file is being uploaded
-      imagePayload = estateImage;
-    }
+    final finalImage = image ?? estateImage;
 
     return {
-      // Note: Depending on your backend, you may want to flatten this 
-      // or keep the "estate" object nesting. Most standard REST/Multipart backends 
-      // prefer flat data structure for FormData. Adjust as needed.
-      "name": finalName,
-      "location": finalLocation,
-      "image": imagePayload, 
+      "estate": {
+        "name": finalName,
+        "location": finalLocation,
+        "image": finalImage,
+      },
     };
   }
 
