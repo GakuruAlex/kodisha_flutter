@@ -15,6 +15,7 @@ ActionInput buildAction(
 }) {
   final normalizedFormType = formType.toLowerCase();
 
+  // 1. Keep Login completely independent
   if (normalizedFormType == "login") {
     return LoginInput(
       email: controllers["login_emailaddress"]?.text ?? "",
@@ -22,7 +23,7 @@ ActionInput buildAction(
     );
   }
 
-  // Namespace stripping loop: e.g., "createhouse_housename" -> "housename"
+  // 2. Clear out your field namespace prefixes exactly like before
   final Map<String, String> extractedFields = {};
   controllers.forEach((key, controller) {
     if (key.contains('_')) {
@@ -33,54 +34,96 @@ ActionInput buildAction(
     }
   });
 
-  if (normalizedFormType.contains("edit") && model != null) {
-    return FormSubmitInput(
-      formType: normalizedFormType,
-      id: id ?? model.id,
-      payload: model.toJson(
-        formFields: extractedFields,
-        image: image,
-        images: images,
-      ),
-    );
-  }
-
+  // 3. Determine the target domain destination enum
+  final FormTarget target;
   if (normalizedFormType.contains("estate")) {
-    return NewEstateInput(
-      name: extractedFields["name"] ?? "",
-      location: extractedFields["location"] ?? "",
+    target = FormTarget.estate;
+  } else if (normalizedFormType.contains("house")) {
+    target = FormTarget.house;
+  } else {
+    throw UnsupportedError("Gate routing failed. Unknown signature: $formType");
+  }
+
+  // 4. Generate the payload map uniformly
+  Map<String, dynamic> payload;
+
+  if (model != null) {
+    // EDIT FLOW: Use the existing active model data map builder
+    payload = model.toJson(
+      formFields: extractedFields,
       image: image,
-    );
-  }
-
-  if (normalizedFormType.contains("house")) {
-    final utilityName = extractedFields["utilityname"] ?? "";
-    List<UtilityModel> parsedUtilities = [];
-
-    if (utilityName.isNotEmpty) {
-      parsedUtilities.add(
-        UtilityModel(
-          name: AccountName.values.firstWhere(
-            (e) => e.uiValue == utilityName,
-            orElse: () => AccountName.wateraccount,
-          ),
-          meterNumber: extractedFields["meterno"] ?? "",
-          lastReading: int.tryParse(extractedFields["lastreading"] ?? "") ?? 0,
-        ),
-      );
-    }
-
-    return CreateHouseInput(
-      houseName: extractedFields["housename"] ?? "",
-      houseType: HouseType.fromUiValue(extractedFields["housetype"] ?? ""),
-      isAvailable: IsOccupied.fromValues(
-        IsOccupied.toValue(extractedFields["isoccupied"] ?? ""),
-      ),
       images: images,
-      estateId: id ?? 0,
-      utilities: parsedUtilities,
+    );
+  } else {
+    // CREATE FLOW: Fall back to your custom domain payload processing
+    payload = _generateCreatePayload(
+      target,
+      extractedFields,
+      image,
+      images,
+      id,
     );
   }
 
-  throw UnsupportedError("Gate routing failed. Unknown signature: $formType");
+  // 5. Package everything into your unified action container
+  return FormSubmitInput(
+    target: target,
+    payload: payload,
+    id: model?.id ?? (model != null ? null : id),
+  );
+}
+
+/// Helper function to cleanly build creation payloads, preserving your exact logic
+Map<String, dynamic> _generateCreatePayload(
+  FormTarget target,
+  Map<String, String> fields,
+  XFile? image,
+  List<XFile>? images,
+  int? parentId,
+) {
+  switch (target) {
+    case FormTarget.estate:
+      // Replaces your old NewEstateInput instantiation
+      return {
+        "estate": {
+          "name": fields["name"] ?? "",
+          "location": fields["location"] ?? "",
+          "image": image,
+        },
+      };
+
+    case FormTarget.house:
+      // Preserves your exact utility parsing logic completely intact
+      final utilityName = fields["utilityname"] ?? "";
+      List<Map<String, dynamic>> utilitiesAttributes = [];
+
+      if (utilityName.isNotEmpty) {
+        final account = AccountName.values.firstWhere(
+          (e) => e.uiValue == utilityName,
+          orElse: () => AccountName.wateraccount,
+        );
+        utilitiesAttributes.add({
+          "name": account.dbValue,
+          "meter_no": fields["meterno"] ?? "",
+          "last_reading": int.tryParse(fields["lastreading"] ?? "") ?? 0,
+        });
+      }
+
+      // Replaces your old CreateHouseInput instantiation
+      // Injects the parent estate_id explicitly into the payload structure
+      return {
+        "estate_id": parentId,
+        "house": {
+          "house_name": fields["housename"] ?? "",
+          "house_type": HouseType.fromUiValue(
+            fields["housetype"] ?? "",
+          ).dbValue,
+          "is_occupied": IsOccupied.fromValues(
+            IsOccupied.toValue(fields["isoccupied"] ?? ""),
+          ).dbValue,
+          "images": images,
+          "utilities_attributes": utilitiesAttributes,
+        },
+      };
+  }
 }

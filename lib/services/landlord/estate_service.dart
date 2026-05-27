@@ -1,4 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:kodisha_flutter/services/api_client.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final estateServiceProvider = Provider((ref) {
+  final dio = ref.read(dioProvider);
+  return EstateService(dio);
+});
 
 class EstateService {
   final Dio _dio;
@@ -11,6 +19,7 @@ class EstateService {
     required int estateId,
   }) async {
     final formData = FormData();
+    debugPrint("Constructing FormData for house with data: $data");
 
     // 1. Extract the actual house data maps
     final houseData = data['house'] as Map<String, dynamic>;

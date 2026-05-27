@@ -47,6 +47,7 @@ class Estate implements FormModel {
     );
   }
 
+  factory Estate.empty() => const Estate();
   factory Estate.fromJson(Map<String, dynamic> estate) {
     List<dynamic> housesE = estate["houses"] ?? [];
     List<House> estateHouses = housesE
