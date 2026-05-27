@@ -16,8 +16,8 @@ class LandlordService {
     return await _dio.get('landlord/estates');
   }
 
-  Future<Response> postNewEstate({required Map<String, dynamic> data}) async {
-    return await _dio.post('landlord/estates', data: data);
+  Future<Response> postNewEstate({required FormData data}) async {
+    return await _dio.post('landlord/new-estate', data: data);
   }
 
   Future<Response> deleteEstate({required int estateID}) async {

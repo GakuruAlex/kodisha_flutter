@@ -1,12 +1,8 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kodisha_flutter/models/estate_model.dart';
-import 'package:kodisha_flutter/provider/login_provider.dart';
-import 'package:kodisha_flutter/services/api_client.dart';
-import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
-
-import 'dart:async';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
 import 'package:kodisha_flutter/services/landlord/landlord_service.dart';
 
@@ -27,15 +23,34 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   }
 
   void addEstate(Map<String, dynamic> estateData) async {
+    debugPrint("Adding estate with data: $estateData");
     final previousState = state.value ?? [];
     state = const AsyncLoading();
 
-    // Any 401 encountered here safely bubbles out, fires logout, and terminates
     state = await AsyncValue.guard(() async {
-      final response = await ref.read(landlordServiceProvider).postNewEstate(data: estateData);
+      final estateDataMap = estateData["estate"] ?? {};
+
+      final XFile? imageFile = estateDataMap["image"];
+      final Map<String, dynamic> formDataMap = {
+        "estate[name]": estateDataMap["name"],
+        "estate[location]": estateDataMap["location"],
+      };
+
+      if (imageFile != null) {
+        formDataMap["estate[image]"] = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: imageFile.name,
+        );
+      }
+
+      final formData = FormData.fromMap(formDataMap);
+      final response = await ref
+          .read(landlordServiceProvider)
+          .postNewEstate(data: formData);
       final Map<String, dynamic> resData = response.data;
 
-      final newEstate = Estate(
+      if(response.statusCode == 200){
+        final newEstate = Estate(
         id: resData["id"],
         name: resData["name"],
         location: resData["location"],
@@ -43,15 +58,21 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
         vacancy: resData["has_vacancy"] ?? false,
         estateImage: resData["image"],
       );
+        return [...previousState, newEstate];
+      } else {
+        throw Exception("Failed to add estate. Status code: ${response.statusCode}");
+      }
 
-      return [...previousState, newEstate];
+      
     });
   }
 
   Future<int> deleteEstate({required int id}) async {
     try {
-      final response = await ref.read(landlordServiceProvider).deleteEstate(estateID: id);
-      
+      final response = await ref
+          .read(landlordServiceProvider)
+          .deleteEstate(estateID: id);
+
       if (response.statusCode == 200) {
         state = AsyncData(
           state.value!.where((estate) => estate.id != id).toList(),
@@ -59,7 +80,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
       }
       return response.statusCode ?? 400;
     } catch (error) {
-      return 403; 
+      return 403;
     }
   }
 
@@ -74,13 +95,14 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
     ]);
   }
 }
+
 final estateProvider = Provider.family<Estate?, int>((ref, estateId) {
   final estatesAsync = ref.watch(estatesProvider);
-  
+
   final list = estatesAsync.value;
   if (list == null) return null;
 
   final index = list.indexWhere((estate) => estate.id == estateId);
-  
+
   return index != -1 ? list[index] : null;
 });

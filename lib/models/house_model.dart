@@ -101,6 +101,7 @@ class House implements FormModel {
     );
   }
 
+  factory House.empty() => const House();
   factory House.fromJson(Map<String, dynamic> house) {
     final List<UtilityModel> utilities = [
       if (house["utilities"] != null)
@@ -120,42 +121,43 @@ class House implements FormModel {
   }
   @override
   Map<String, dynamic> toJson({
-  Map<String, String>? formFields, 
-  XFile? image,
-  List<XFile>? images,
-}) {
-  final finalName = (formFields != null && formFields.containsKey("name"))
-      ? formFields["name"]
-      : name;
+    Map<String, String>? formFields,
+    XFile? image,
+    List<XFile>? images,
+  }) {
+    final finalName = (formFields != null && formFields.containsKey("name"))
+        ? formFields["name"]
+        : name;
 
-  final finalIsOccupied = (formFields != null && formFields.containsKey("isoccupied"))
-      ? formFields["isoccupied"]
-      : isOccupied;
+    final finalIsOccupied =
+        (formFields != null && formFields.containsKey("isoccupied"))
+        ? formFields["isoccupied"]
+        : isOccupied;
 
-  final finalHouseType = (formFields != null && formFields.containsKey("housetype"))
-      ? formFields["housetype"]
-      : houseType;
+    final finalHouseType =
+        (formFields != null && formFields.containsKey("housetype"))
+        ? formFields["housetype"]
+        : houseType;
 
-  final finalImages = images ?? this.images;
+    final finalImages = images ?? this.images;
 
-  return {
-    "house": {
-      if (id != null) "id": id,
-      
-      "house_name": finalName,
-      "images": finalImages,
-      "is_occupied": finalIsOccupied,
-      "house_type": finalHouseType,
-      
-      if (utilities != null)
-        "utilities_attributes": utilities!.map((utility) {
-          return utility.toJson(
-            formFields: formFields,
-          );
-        }).toList(),
-    },
-  };
-}
+    return {
+      "house": {
+        if (id != null) "id": id,
+
+        "house_name": finalName,
+        "images": finalImages,
+        "is_occupied": finalIsOccupied,
+        "house_type": finalHouseType,
+
+        if (utilities != null)
+          "utilities_attributes": utilities!.map((utility) {
+            return utility.toJson(formFields: formFields);
+          }).toList(),
+      },
+    };
+  }
+
   @override
   Map<String, dynamic> toFormValues() => {
     "id": id,

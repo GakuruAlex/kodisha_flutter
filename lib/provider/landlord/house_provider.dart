@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/models/house_model.dart';
 import 'package:kodisha_flutter/models/utility_model.dart';
@@ -67,6 +68,8 @@ class HousesNotifier extends AsyncNotifier<List<House>> {
   }
 
   Future<void> addHouse(Map<String, dynamic> houseData) async {
+    debugPrint("Arguments received for adding house: estateId=${arg.estateId}, houseId=${arg.houseId}");
+    debugPrint("Adding house with data: $houseData");
     if (arg.estateId == null) return;
     
     final previousState = state.value ?? [];
