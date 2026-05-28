@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kodisha_flutter/models/estate_model.dart';
@@ -23,7 +22,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   }
 
   void addEstate(Map<String, dynamic> estateData) async {
-    debugPrint("Adding estate with data: $estateData");
+    //debugPrint("Adding estate with data: $estateData");
     final previousState = state.value ?? [];
     state = const AsyncLoading();
 
@@ -49,7 +48,7 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
           .postNewEstate(data: formData);
       final Map<String, dynamic> resData = response.data;
 
-      if(response.statusCode == 200){
+      if(response.statusCode == 201){
         final newEstate = Estate(
         id: resData["id"],
         name: resData["name"],

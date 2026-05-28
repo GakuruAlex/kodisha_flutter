@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
@@ -16,7 +15,6 @@ void runAction(ActionInput action, WidgetRef ref) {
         
         case FormTarget.estate:
           if (id == null) {
-            // Creation flow
             ref.read(estatesProvider.notifier).addEstate(payload);
           } else {
             // TODO ref.read(estatesProvider.notifier).updateEstate(id, payload);
@@ -24,17 +22,15 @@ void runAction(ActionInput action, WidgetRef ref) {
           break;
 
         case FormTarget.house:
-          // Pull out the estate parent ID we injected during buildAction
-          debugPrint("Payload received for house action: $payload");
+          //debugPrint("Payload received for house action: $payload");
           final estateId = payload["estate_id"];
           
-          // Access your distinct family notifier instance
           final houseNotifierP = ref.read(
             housesNotifierProvider((estateId: estateId, houseId: id)).notifier
           );
 
           if (id == null) {
-            debugPrint("Creating new house under estate ID: $estateId id: $id");
+            //debugPrint("Creating new house under estate ID: $estateId id: $id");
             houseNotifierP.addHouse(payload);
           } else {
             // TODO houseNotifierP.updateHouse(payload);
