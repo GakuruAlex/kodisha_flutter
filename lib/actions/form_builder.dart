@@ -15,7 +15,6 @@ ActionInput buildAction(
 }) {
   final normalizedFormType = formType.toLowerCase();
 
-  // 1. Keep Login completely independent
   if (normalizedFormType == "login") {
     return LoginInput(
       email: controllers["login_emailaddress"]?.text ?? "",
@@ -23,7 +22,6 @@ ActionInput buildAction(
     );
   }
 
-  // 2. Clear out your field namespace prefixes exactly like before
   final Map<String, String> extractedFields = {};
   controllers.forEach((key, controller) {
     if (key.contains('_')) {
@@ -34,7 +32,6 @@ ActionInput buildAction(
     }
   });
 
-  // 3. Determine the target domain destination enum
   final FormTarget target;
   if (normalizedFormType.contains("estate")) {
     target = FormTarget.estate;
@@ -44,18 +41,15 @@ ActionInput buildAction(
     throw UnsupportedError("Gate routing failed. Unknown signature: $formType");
   }
 
-  // 4. Generate the payload map uniformly
   Map<String, dynamic> payload;
 
   if (model != null) {
-    // EDIT FLOW: Use the existing active model data map builder
     payload = model.toJson(
       formFields: extractedFields,
       image: image,
       images: images,
     );
   } else {
-    // CREATE FLOW: Fall back to your custom domain payload processing
     payload = _generateCreatePayload(
       target,
       extractedFields,
@@ -65,15 +59,13 @@ ActionInput buildAction(
     );
   }
 
-  // 5. Package everything into your unified action container
   return FormSubmitInput(
     target: target,
     payload: payload,
-    id: model?.id ?? (model != null ? null : id),
+    id: model?.id,
   );
 }
 
-/// Helper function to cleanly build creation payloads, preserving your exact logic
 Map<String, dynamic> _generateCreatePayload(
   FormTarget target,
   Map<String, String> fields,
@@ -83,7 +75,6 @@ Map<String, dynamic> _generateCreatePayload(
 ) {
   switch (target) {
     case FormTarget.estate:
-      // Replaces your old NewEstateInput instantiation
       return {
         "estate": {
           "name": fields["name"] ?? "",
@@ -93,7 +84,6 @@ Map<String, dynamic> _generateCreatePayload(
       };
 
     case FormTarget.house:
-      // Preserves your exact utility parsing logic completely intact
       final utilityName = fields["utilityname"] ?? "";
       List<Map<String, dynamic>> utilitiesAttributes = [];
 
@@ -109,8 +99,6 @@ Map<String, dynamic> _generateCreatePayload(
         });
       }
 
-      // Replaces your old CreateHouseInput instantiation
-      // Injects the parent estate_id explicitly into the payload structure
       return {
         "estate_id": parentId,
         "house": {
