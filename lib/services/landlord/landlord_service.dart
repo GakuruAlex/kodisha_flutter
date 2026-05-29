@@ -11,14 +11,17 @@ class LandlordService {
   final Dio _dio;
   LandlordService(this._dio);
 
-  // Notice we don't pass the token manually anymore! The Interceptor handles it.
-  Future<Response> getEstates() async {
+    Future<Response> getEstates() async {
     return await _dio.get('landlord/estates');
   }
 
   Future<Response> postNewEstate({required FormData data}) async {
     return await _dio.post('landlord/new-estate', data: data);
   }
+  Future<Response> updateEstate({required FormData data, required int estateID}) async {
+    return await _dio.put('landlord/estates/$estateID', data: data);
+  }
+
 
   Future<Response> deleteEstate({required int estateID}) async {
     return await _dio.delete('landlord/estates/$estateID');

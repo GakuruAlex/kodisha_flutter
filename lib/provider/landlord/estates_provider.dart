@@ -9,6 +9,24 @@ final estatesProvider = AsyncNotifierProvider<EstatesNotifier, List<Estate>>(
   () => EstatesNotifier(),
 );
 
+Future<FormData> _buildFormData(Map<String, dynamic> estateData) async {
+  final estateFields = estateData["estate"] ?? estateData;
+  final XFile? imageFile = estateFields["image"];
+  
+  final Map<String, dynamic> wrappedPayload = {
+    "estate[name]": estateFields["name"],
+    "estate[location]": estateFields["location"],
+  };
+
+  if (imageFile != null) {
+    wrappedPayload["estate[image]"] = await MultipartFile.fromFile(
+      imageFile.path,
+      filename: imageFile.name,
+    );
+  }
+
+  return FormData.fromMap(wrappedPayload);
+}
 class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   @override
   FutureOr<List<Estate>> build() async {
@@ -22,50 +40,49 @@ class EstatesNotifier extends AsyncNotifier<List<Estate>> {
   }
 
   void addEstate(Map<String, dynamic> estateData) async {
-    //debugPrint("Adding estate with data: $estateData");
     final previousState = state.value ?? [];
     state = const AsyncLoading();
 
     state = await AsyncValue.guard(() async {
-      final estateDataMap = estateData["estate"] ?? {};
-
-      final XFile? imageFile = estateDataMap["image"];
-      final Map<String, dynamic> formDataMap = {
-        "estate[name]": estateDataMap["name"],
-        "estate[location]": estateDataMap["location"],
-      };
-
-      if (imageFile != null) {
-        formDataMap["estate[image]"] = await MultipartFile.fromFile(
-          imageFile.path,
-          filename: imageFile.name,
-        );
-      }
-
-      final formData = FormData.fromMap(formDataMap);
+      final formData = await _buildFormData(estateData);
+      
       final response = await ref
           .read(landlordServiceProvider)
           .postNewEstate(data: formData);
-      final Map<String, dynamic> resData = response.data;
 
-      if(response.statusCode == 201){
-        final newEstate = Estate(
-        id: resData["id"],
-        name: resData["name"],
-        location: resData["location"],
-        numHouses: resData["houses_count"] ?? 0,
-        vacancy: resData["has_vacancy"] ?? false,
-        estateImage: resData["image"],
-      );
+      if (response.statusCode == 201) {
+        final newEstate = Estate.fromJson(response.data as Map<String, dynamic>);
         return [...previousState, newEstate];
       } else {
         throw Exception("Failed to add estate. Status code: ${response.statusCode}");
       }
-
-      
     });
   }
 
+  void updateEstate({required int estateID, required Map<String, dynamic> estateData}) async {
+    final previousState = state.value ?? [];
+    state = const AsyncLoading();
+
+    state = await AsyncValue.guard(() async {
+      final formData = await _buildFormData(estateData);
+      
+      final response = await ref
+          .read(landlordServiceProvider)
+          .updateEstate(data: formData, estateID: estateID);
+
+      if (response.statusCode == 200) {
+        final updatedEstate = Estate.fromJson(response.data as Map<String, dynamic>);
+        return [
+          for (final estate in previousState)
+            if (estate.id == estateID) updatedEstate else estate,
+        ];
+      } else {
+        throw Exception("Failed to update estate. Status code: ${response.statusCode}");
+      }
+    });
+  }
+
+  
   Future<int> deleteEstate({required int id}) async {
     try {
       final response = await ref

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kodisha_flutter/provider/landlord/estates_provider.dart';
 import 'package:kodisha_flutter/provider/landlord/house_provider.dart';
@@ -12,21 +13,24 @@ void runAction(ActionInput action, WidgetRef ref) {
 
     case FormSubmitInput(:final target, :final payload, :final id):
       switch (target) {
-        
         case FormTarget.estate:
+          debugPrint("Payload received for estate action: $payload");
+
           if (id == null) {
             ref.read(estatesProvider.notifier).addEstate(payload);
           } else {
-            // TODO ref.read(estatesProvider.notifier).updateEstate(id, payload);
+            ref
+                .read(estatesProvider.notifier)
+                .updateEstate(estateID: id, estateData: payload);
           }
           break;
 
         case FormTarget.house:
           //debugPrint("Payload received for house action: $payload");
           final estateId = payload["estate_id"];
-          
+
           final houseNotifierP = ref.read(
-            housesNotifierProvider((estateId: estateId, houseId: id)).notifier
+            housesNotifierProvider((estateId: estateId, houseId: id)).notifier,
           );
 
           if (id == null) {
