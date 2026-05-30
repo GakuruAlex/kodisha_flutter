@@ -18,11 +18,12 @@ class Estate implements FormModel {
   final bool? vacancy;
   final String? name;
   final int? numHouses;
+  
   @override
   final int? id;
   final String? estateImage;
 
-  Estate copywith({
+  Estate copyWith({
     String? location,
     String? name,
     int? numHouses,
@@ -31,38 +32,37 @@ class Estate implements FormModel {
     bool? vacancy,
     List<House>? houses,
   }) {
-    List<dynamic> housesE = houses ?? [];
-    List<House> estateHouses = housesE
-        .map((house) => House.fromJson(house))
-        .toList();
-
     return Estate(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      location: location ?? this.location,
+      numHouses: numHouses ?? this.numHouses,
       vacancy: vacancy ?? this.vacancy,
       estateImage: estateImage ?? this.estateImage,
-      location: location ?? this.location,
-      name: name ?? this.name,
-      id: id ?? this.id,
-      numHouses: numHouses ?? this.numHouses,
-      houses: estateHouses,
+      houses: houses ?? this.houses, 
     );
   }
 
   factory Estate.empty() => const Estate();
+
   factory Estate.fromJson(Map<String, dynamic> estate) {
-    List<dynamic> housesE = estate["houses"] ?? [];
-    List<House> estateHouses = housesE
-        .map((house) => House.fromJson(house))
+    final List<dynamic> housesE = estate["houses"] ?? [];
+    
+    final List<House> estateHouses = housesE
+        .map((house) => House.fromJson(house as Map<String, dynamic>))
         .toList();
+
     return Estate(
       location: estate["location"],
       name: estate["name"],
       id: estate["id"],
-      numHouses: estate["houses_count"],
-      vacancy: estate["has_vacancy"],
+      numHouses: estate["houses_count"] ?? 0,
+      vacancy: estate["has_vacancy"] ?? false,
       houses: estateHouses,
       estateImage: estate["image"],
     );
   }
+
   @override
   Map<String, dynamic> toJson({
     Map<String, String>? formFields,
@@ -73,8 +73,7 @@ class Estate implements FormModel {
         ? formFields["name"]
         : name;
 
-    final finalLocation =
-        (formFields != null && formFields.containsKey("location"))
+    final finalLocation = (formFields != null && formFields.containsKey("location"))
         ? formFields["location"]
         : location;
 
@@ -95,17 +94,22 @@ class Estate implements FormModel {
     "location": location,
     "name": name,
   };
+
   @override
   String? get imageUrl => estateImage;
+  
   @override
   String get title => name ?? "";
+  
   @override
   String get subTitle => location ?? "";
+  
   @override
   Map<String, String> metaData() => {
     "Number of houses": "$numHouses",
-    "Vacancy": vacancy! ? "Available" : "Taken",
+    "Vacancy": (vacancy ?? false) ? "Available" : "Taken", // Safe null protection
   };
+
   @override
   List<String>? get imagesUrl => [];
 }
