@@ -33,16 +33,16 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final watched = ref.watch(provider);
-
     final item = watched ?? initialData;
 
     if (item == null) {
       return const SizedBox.expand(
         child: Card(child: Center(child: CircularProgressIndicator())),
       );
-    }
+    } 
 
     return Card(
+      key: ValueKey('${modelName.toLowerCase()}_${item.id}_${item.title}'),
       margin: const EdgeInsets.all(8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.hardEdge,
@@ -65,7 +65,6 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
                 },
               ),
             ),
-
             Positioned(
               top: 0,
               right: 0,
@@ -85,7 +84,6 @@ class GenericCard<T extends FormModel> extends ConsumerWidget {
                 },
               ),
             ),
-
             Positioned(
               bottom: 0,
               right: 0,
