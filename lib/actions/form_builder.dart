@@ -41,6 +41,11 @@ ActionInput buildAction(
     throw UnsupportedError("Gate routing failed. Unknown signature: $formType");
   }
 
+  final isEditing =
+      normalizedFormType.contains("edit") ||
+      normalizedFormType.contains("update") ||
+      model != null;
+
   Map<String, dynamic> payload;
 
   if (model != null) {
@@ -55,14 +60,14 @@ ActionInput buildAction(
       extractedFields,
       image,
       images,
-      id,
+      isEditing ? null : id,
     );
   }
 
   return FormSubmitInput(
     target: target,
     payload: payload,
-    id: model?.id,
+    id: isEditing ? (model?.id ?? id) : null,
   );
 }
 
