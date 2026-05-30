@@ -16,19 +16,17 @@ class InfoOverlay extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
+          Wrap(
+            spacing: 8.0, 
+            runSpacing:
+                4.0,
             children: [
               Text(
                 item.title,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white.withAlpha(220),
                 ),
-                // style: const TextStyle(
-                //   fontWeight: FontWeight.bold,
-                //   color: Colors.white,
-                //),
               ),
-              SizedBox(width: 8),
               Text(
                 item.subTitle,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
